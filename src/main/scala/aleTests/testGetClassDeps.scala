@@ -22,7 +22,4 @@ import java.io.File
   println("TEST 2:")
   println("Dipendenze trovate:")
   val futureReport2 = analyser.getClassDependencies(file)
-  futureReport2.onComplete {res =>
-    res.foreach(dep =>
-      println("-" + dep))
-  } //Non capisco perchè così non funzioni
+  futureReport2.onComplete {res => res.get.depsList.forEach(d => println("-" + d))} //non stampa perché termina prima il main duh
