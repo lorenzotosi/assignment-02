@@ -22,4 +22,7 @@ import java.io.File
   println("TEST 2:")
   println("Dipendenze trovate:")
   val futureReport2 = analyser.getClassDependencies(file)
-  futureReport2.onComplete(res => res.foreach(dep => println("-" + dep))) //PER FORZA NON VA, LA ON_COMPLETE TORNA UNIT E NIENT'Altro
+  futureReport2.onComplete {res =>
+    res.foreach(dep =>
+      println("-" + dep))
+  } //Non capisco perchè così non funzioni

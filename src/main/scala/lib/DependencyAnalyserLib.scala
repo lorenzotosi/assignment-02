@@ -1,12 +1,10 @@
 package lib
 
 import com.github.javaparser.StaticJavaParser
-import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.ClassOrInterfaceType
 
 import java.io.File
 import java.util
-import java.util.{HashSet, Set}
 import scala.concurrent.{Future, ExecutionContext}
 
 
