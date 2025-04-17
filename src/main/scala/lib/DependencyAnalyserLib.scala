@@ -1,39 +1,34 @@
 package lib
 
-import com.github.javaparser.StaticJavaParser
-import com.github.javaparser.ast.`type`.ClassOrInterfaceType
+import io.vertx.core.{AbstractVerticle, Future}
 
 import java.io.File
-import scala.concurrent.{Future, ExecutionContext}
 
 
-object DependencyAnalyserLib
+object DependencyAnalyserLib:
 
   trait Report:
     def depsList: Set[String]
-    def addDep(dependency: String): Unit
 
-  trait Analyzer:
-    def getClassDependencies(classSrcFile: File)(implicit ec: ExecutionContext): Future[ClassDepsReport]
-    def getPackageDependencies(packageSrcFolder: Any): Future[PackageDepsReport]
+  trait Analyzer extends AbstractVerticle:
+    def getClassDependencies(classSrcFile: File): Future[ClassDepsReport]
+    def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport]
     def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport]
 
   class DependencyAnalyser extends Analyzer:
-    override def getClassDependencies(classSrcFile: File)(implicit ec: ExecutionContext): Future[ClassDepsReport] =
-      Future (
-        parseClass(classSrcFile)
-    )
+    override def getClassDependencies(classSrcFile: File): Future[ClassDepsReport] =
+      this.getVertx.executeBlocking(() => ClassDepsReport(classSrcFile))
 
-    override def getPackageDependencies(packageSrcFolder: Any): Future[PackageDepsReport] = ???
+    override def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport] =
+      if (!packageSrcFolder.isDirectory)
+        throw new IllegalArgumentException("Il percorso specificato non è una directory valida.")
+      var classes: List[ClassDepsReport] = List()
+      this.getVertx.executeBlocking(() =>
+        packageSrcFolder
+          .listFiles((_, name) => name.endsWith(".java")).toList.foreach(
+            file => classes = ClassDepsReport(file) :: classes
+          )
+        PackageDepsReport(packageSrcFolder.getName, classes)
+      )
 
     override def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport] = ???
-
-    private def parseClass(file: File): ClassDepsReport =
-      val cu = StaticJavaParser.parse(file)
-      val usedTypes = ClassDepsReport(file.getName)
-
-      cu.findAll(classOf[ClassOrInterfaceType]).forEach { tpe =>
-        usedTypes.addDep(tpe.getNameAsString)
-      }
-      usedTypes
-
