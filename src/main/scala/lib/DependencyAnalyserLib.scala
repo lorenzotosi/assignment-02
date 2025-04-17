@@ -13,7 +13,7 @@ object DependencyAnalyserLib:
   trait Analyzer extends AbstractVerticle:
     def getClassDependencies(classSrcFile: File): Future[ClassDepsReport]
     def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport]
-    def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport]
+    def getProjectDependencies(projectSrcFolder: File): Future[ProjectDepsReport]
 
   class DependencyAnalyser extends Analyzer:
     override def getClassDependencies(classSrcFile: File): Future[ClassDepsReport] =
@@ -28,7 +28,7 @@ object DependencyAnalyserLib:
           .listFiles((_, name) => name.endsWith(".java")).toList.foreach(
             file => classes = ClassDepsReport(file) :: classes
           )
-        PackageDepsReport(packageSrcFolder.getName, classes)
+        PackageDepsReport(packageSrcFolder, classes)
       )
 
-    override def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport] = ???
+    override def getProjectDependencies(projectSrcFolder: File): Future[ProjectDepsReport] = ???
