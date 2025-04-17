@@ -18,14 +18,14 @@ import java.io.File
   println("File: " + report.className)
 
   println("Dipendenze trovate:")
-  report.depsList.forEach(dep => println("-" + dep))
+  report.depsList.foreach(dep => println("-" + dep))
 
   println("TEST 2:")
   println("Dipendenze trovate:")
   val futureReport2 = analyser.getClassDependencies(file)
 
   var i: Int = 0
-  futureReport2.onComplete {res => res.get.depsList.forEach(d => println("-" + d))} //non stampa perché termina prima il main duh
+  futureReport2.onComplete {res => res.get.depsList.foreach(d => println("-" + d))} //non stampa perché termina prima il main duh
   println(i)
 
   while (i<100) //giusto per confermare la asincronità del metodo

@@ -1,17 +1,15 @@
 package lib
 
-import java.util
-import java.util.{HashSet, Set}
 
 class ClassDepsReport extends Report:
-  private val deps: util.Set[String] = new util.HashSet[String]
+  private var deps: Set[String] = Set()
   private var name: String = ""
 
   def this(className: String) =  
     this()
     name = className
     
-  override def depsList: util.Set[String] = deps
-  override def addDep(dependency: String): Unit = deps.add(dependency)
+  override def depsList: Set[String] = deps
+  override def addDep(dependency: String): Unit = deps = deps + dependency
   
   def className: String = name
