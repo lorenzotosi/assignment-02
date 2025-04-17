@@ -1,15 +1,13 @@
 package lib
 
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.`type`.ClassOrInterfaceType
+import lib.DependencyAnalyserLib.Report
 
-class ClassDepsReport extends Report:
-  private var deps: Set[String] = Set()
-  private var name: String = ""
+import java.io.File
 
-  def this(className: String) =  
-    this()
-    name = className
-    
-  override def depsList: Set[String] = deps
-  override def addDep(dependency: String): Unit = deps = deps + dependency
-  
-  def className: String = name
+class ClassDepsReport(val file: File) extends Report:
+  override def depsList: Set[String] =
+    StaticJavaParser.parse(file).findAll(classOf[ClassOrInterfaceType]).toArray.map(_.toString).toSet
+
+  def className: String = file.getName
