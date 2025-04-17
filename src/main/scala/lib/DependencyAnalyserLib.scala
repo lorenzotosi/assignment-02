@@ -31,7 +31,7 @@ object DependencyAnalyserLib
 
     private def parseClass(file: File): ClassDepsReport =
       val cu = StaticJavaParser.parse(file)
-      val usedTypes = ClassDepsReport()
+      val usedTypes = ClassDepsReport(file.getName)
 
       cu.findAll(classOf[ClassOrInterfaceType]).forEach { tpe =>
         usedTypes.addDep(tpe.getNameAsString)
