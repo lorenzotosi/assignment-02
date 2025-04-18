@@ -29,10 +29,15 @@ import java.io.File
   //packageReport.onComplete(x => x.result().printClasses())
   var i: Int = 0
 
-//  while (i<1000)
-//    i = i+1
-//    println(i)
-//    Thread.sleep(1)
   val projectDir = new File("src/main/scala/")
   val projectReport = analyser.getProjectDependencies(projectDir)
-  projectReport.onComplete(x => x.result().printClasses())
+  projectReport.onComplete(
+    x =>
+      x.result().printClasses()
+      v.close()
+  )
+
+  while (i<1000)
+    i = i+1
+    println(i)
+    Thread.sleep(1)
