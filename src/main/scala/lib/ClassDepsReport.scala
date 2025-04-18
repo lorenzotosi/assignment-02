@@ -5,20 +5,11 @@ import lib.DependencyAnalyserLib.Report
 import java.io.File
 
 
-class ClassDepsReport extends Report:
-  private var deps: Set[String] = Set()
-  private var name: String = ""
-
-  def this(name: String, deplist: Set[String]) =
-    this()
-    this.name = name
-    deps = deplist
+class ClassDepsReport(val className: String, private val classDepsList: Set[String]) extends Report:
     
-  override def depsList: Set[String] = deps
-  
-  def className: String = name
+  override def depsList: Set[String] = classDepsList
 
   def printReport(): Unit =
     println("Class: " + className)
-    deps.foreach(dep => println("|  - " + dep))
+    classDepsList.foreach(dep => println("|  - " + dep))
     println("___End " + className + " Report___")
