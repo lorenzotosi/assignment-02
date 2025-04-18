@@ -10,6 +10,12 @@ class ProjectDepsReport(val projectName: File, val packages: List[PackageDepsRep
 
   def printClasses(): Unit = {
     println("Project name: ".concat(projectName.getName))
-    packages.foreach(_.printClasses())
+    packages.foreach(c => {
+      println("Package name: ".concat(c.packageName.getName))
+      c.classes.foreach(c => {
+        println("Class name: ".concat(c.className))
+        c.depsList.foreach(println(_))
+      })
+    })
   }
 
