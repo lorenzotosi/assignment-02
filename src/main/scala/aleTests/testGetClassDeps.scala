@@ -1,9 +1,8 @@
 package aleTests
 
-import lib.DependencyAnalyser
+import lib.DependencyAnalyserLib.DependencyAnalyser
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
+import scala.concurrent.duration.*
 import scala.concurrent.Await
 import java.io.File
 

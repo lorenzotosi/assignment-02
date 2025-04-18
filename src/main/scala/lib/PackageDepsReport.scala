@@ -1,5 +1,7 @@
 package lib
 
+import lib.DependencyAnalyserLib.Report
+
 
 class PackageDepsReport extends Report:
   override def depsList: Set[String] = ???

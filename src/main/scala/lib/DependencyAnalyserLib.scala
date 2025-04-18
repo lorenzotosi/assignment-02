@@ -7,7 +7,7 @@ import java.io.File
 import scala.concurrent.{Future, ExecutionContext}
 
 
-object DependencyAnalyserLib
+object DependencyAnalyserLib:
 
   trait Report:
     def depsList: Set[String]

@@ -1,5 +1,7 @@
 package lib
 
+import lib.DependencyAnalyserLib.Report
+
 
 class ClassDepsReport extends Report:
   private var deps: Set[String] = Set()
