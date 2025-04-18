@@ -33,11 +33,11 @@ import java.io.File
   val projectReport = analyser.getProjectDependencies(projectDir)
   projectReport.onComplete(
     x =>
-      x.result().printClasses()
+      x.result().printInformation
       v.close()
   )
 
-  while (i<1000)
-    i = i+1
-    println(i)
-    Thread.sleep(1)
+//  while (i<1000)
+//    i = i+1
+//    println(s"Eseguito dal thread: ${Thread.currentThread().getName}" + i)
+//    Thread.sleep(1)
