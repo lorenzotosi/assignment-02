@@ -12,6 +12,7 @@ object DependencyAnalyserLib:
 
   trait Report:
     def depsList: Set[String]
+    def printInformation: Unit
 
   trait Analyzer extends AbstractVerticle:
     def getClassDependencies(classSrcFile: File): Future[ClassDepsReport]
