@@ -8,8 +8,8 @@ class ProjectDepsReport(val projectName: File, val packages: List[PackageDepsRep
 
   override def depsList: Set[String] = packages.flatMap(x => x.depsList).toSet
 
-  override def printInformation: Unit = 
+  override def printInformation(): Unit = 
     println("Project name: ".concat(projectName.getName))
-    packages.foreach(p => p.printInformation)
+    packages.foreach(p => p.printInformation())
   
 

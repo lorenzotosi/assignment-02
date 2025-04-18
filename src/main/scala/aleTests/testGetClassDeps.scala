@@ -33,7 +33,7 @@ import java.io.File
   val projectReport = analyser.getProjectDependencies(projectDir)
   projectReport.onComplete(
     x =>
-      x.result().printInformation
+      x.result().printInformation()
       v.close()
   )
 
