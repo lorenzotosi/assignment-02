@@ -21,45 +21,50 @@ object DependencyAnalyserLib:
   class DependencyAnalyser extends Analyzer:
     override def getClassDependencies(classSrcFile: File): Future[ClassDepsReport] =
       this.getVertx.executeBlocking(() =>
-        val depList = StaticJavaParser.parse(classSrcFile)
-          .findAll(classOf[ClassOrInterfaceType])
-          .toArray
-          .map(_.toString)
-          .toSet
-        ClassDepsReport(classSrcFile, depList))
+        if !classSrcFile.isFile && !classSrcFile.getName.endsWith(".java") then
+          throw new IllegalArgumentException("Il file non è un sorgente .java.")
+        else
+          val depList = StaticJavaParser.parse(classSrcFile)
+            .findAll(classOf[ClassOrInterfaceType])
+            .toArray
+            .map(_.toString)
+            .toSet
+          ClassDepsReport(classSrcFile, depList))
 
     override def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport] =
-      if (!packageSrcFolder.isDirectory)
-        throw new IllegalArgumentException("Il percorso specificato non è una directory valida.")
-      var classes: List[ClassDepsReport] = List()
-      val classFutures = packageSrcFolder
-        .listFiles(_.getName.endsWith(".java"))
-        .toList
-        .map(getClassDependencies)
-
-      val javaList: java.util.List[Future[ClassDepsReport]] = classFutures.asJava
-      Future.join(javaList).map { compositeFuture =>
-        val classes = (0 until compositeFuture.size())
-          .map(compositeFuture.resultAt[ClassDepsReport])
-          .toList
-
-        PackageDepsReport(packageSrcFolder, classes)
-      }
+      this.getVertx.executeBlocking(() =>
+        if !packageSrcFolder.isDirectory then
+          throw new IllegalArgumentException("Il percorso specificato non è un package.")
+        else
+          packageSrcFolder.listFiles(f =>
+            f.isFile && f.getName.endsWith(".java"))
+      ).compose ( javaFiles =>
+        val classFutures = javaFiles.map(getClassDependencies).toList
+        Future.join(classFutures.asJava)
+          .map(composite =>
+            PackageDepsReport(
+              packageSrcFolder,
+              (0 until composite.size())
+                .map(composite.resultAt[ClassDepsReport])
+                .toList
+            )
+          )
+      )
 
     override def getProjectDependencies(projectSrcFolder: File): Future[ProjectDepsReport] =
-      if (!projectSrcFolder.isDirectory)
-        throw new IllegalArgumentException("Il percorso specificato non è una directory valida.")
-
-      val packageFutures = projectSrcFolder
-        .listFiles(_.isDirectory)
-        .toList
-        .map(getPackageDependencies)
-
-      val javaList: java.util.List[Future[PackageDepsReport]] = packageFutures.asJava
-      Future.join(javaList).map { compositeFuture =>
-        val packages = (0 until compositeFuture.size())
-          .map(compositeFuture.resultAt[PackageDepsReport])
-          .toList
-
-        ProjectDepsReport(projectSrcFolder, packages)
-      }
+      this.getVertx.executeBlocking(() =>
+        if !projectSrcFolder.isDirectory then
+          throw new IllegalArgumentException("Il percorso specificato non è un progetto")
+        else
+          projectSrcFolder.listFiles(_.isDirectory)
+      ).compose(folders =>
+        val packages = folders.map(getPackageDependencies).toList
+        Future.join(packages.asJava)
+          .map(composite =>
+            ProjectDepsReport(
+              projectSrcFolder,
+              (0 until composite.size())
+                .map(composite.resultAt[PackageDepsReport])
+                .toList)
+          )
+        )
