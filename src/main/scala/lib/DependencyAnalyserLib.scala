@@ -40,8 +40,7 @@ object DependencyAnalyserLib:
           packageSrcFolder.listFiles(f =>
             f.isFile && f.getName.endsWith(".java")), false)
         .compose ( javaFiles =>
-        val classFutures = javaFiles.map(getClassDependencies).toList
-        Future.join(classFutures.asJava)
+        Future.join(javaFiles.map(getClassDependencies).toList.asJava)
           .map(composite =>
             PackageDepsReport(
               packageSrcFolder,
@@ -59,8 +58,7 @@ object DependencyAnalyserLib:
         else
           projectSrcFolder.listFiles(_.isDirectory), false)
         .compose(folders =>
-        val packages = folders.map(getPackageDependencies).toList
-        Future.join(packages.asJava)
+        Future.join(folders.map(getPackageDependencies).toList.asJava)
           .map(composite =>
             ProjectDepsReport(
               projectSrcFolder,
