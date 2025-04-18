@@ -1,9 +1,9 @@
 package lib
 
-import io.vertx.core.impl.future.CompositeFutureImpl
 import io.vertx.core.{AbstractVerticle, CompositeFuture, Future}
-import scala.jdk.CollectionConverters._
+
 import java.io.File
+import scala.jdk.CollectionConverters.*
 
 
 object DependencyAnalyserLib:
