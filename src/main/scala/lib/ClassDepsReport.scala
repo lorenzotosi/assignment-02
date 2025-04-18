@@ -6,8 +6,17 @@ import lib.DependencyAnalyserLib.Report
 
 import java.io.File
 
-class ClassDepsReport(val file: File) extends Report:
-  override def depsList: Set[String] =
-    StaticJavaParser.parse(file).findAll(classOf[ClassOrInterfaceType]).toArray.map(_.toString).toSet
+class ClassDepsReport extends Report:
+  private var deplist: Set[String] = Set()
+  private var fileName: String = ""
 
-  def className: String = file.getName
+  def this(file: File) = {
+    this()
+    deplist = StaticJavaParser.parse(file).findAll(classOf[ClassOrInterfaceType]).toArray.map(_.toString).toSet
+    fileName = file.getName
+  }
+
+  override def depsList: Set[String] = deplist
+
+
+  def className: String = fileName
