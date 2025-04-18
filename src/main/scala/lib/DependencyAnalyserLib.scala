@@ -30,7 +30,7 @@ object DependencyAnalyserLib:
             .toArray
             .map(_.toString)
             .toSet
-          ClassDepsReport(classSrcFile, depList))
+          ClassDepsReport(classSrcFile, depList), false)
 
     override def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport] =
       this.getVertx.executeBlocking(() =>
@@ -38,8 +38,8 @@ object DependencyAnalyserLib:
           throw new IllegalArgumentException("Il percorso specificato non è un package.")
         else
           packageSrcFolder.listFiles(f =>
-            f.isFile && f.getName.endsWith(".java"))
-      ).compose ( javaFiles =>
+            f.isFile && f.getName.endsWith(".java")), false)
+        .compose ( javaFiles =>
         val classFutures = javaFiles.map(getClassDependencies).toList
         Future.join(classFutures.asJava)
           .map(composite =>
@@ -57,8 +57,8 @@ object DependencyAnalyserLib:
         if !projectSrcFolder.isDirectory then
           throw new IllegalArgumentException("Il percorso specificato non è un progetto")
         else
-          projectSrcFolder.listFiles(_.isDirectory)
-      ).compose(folders =>
+          projectSrcFolder.listFiles(_.isDirectory), false)
+        .compose(folders =>
         val packages = folders.map(getPackageDependencies).toList
         Future.join(packages.asJava)
           .map(composite =>
