@@ -4,36 +4,50 @@ import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.`type`.ClassOrInterfaceType
 
 import java.io.File
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration.Duration
 
 
 object DependencyAnalyserLib:
 
   trait Report:
     def depsList: Set[String]
-    def addDep(dependency: String): Unit
 
   trait Analyzer:
     def getClassDependencies(classSrcFile: File)(implicit ec: ExecutionContext): Future[ClassDepsReport]
-    def getPackageDependencies(packageSrcFolder: Any): Future[PackageDepsReport]
-    def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport]
+    def getPackageDependencies(packageSrcFolder: File)(implicit ec: ExecutionContext): Future[PackageDepsReport]
+    def getProjectDependencies(projectSrcFolder: File)(implicit ec: ExecutionContext): Future[ProjectDepsReport]
 
   class DependencyAnalyser extends Analyzer:
     override def getClassDependencies(classSrcFile: File)(implicit ec: ExecutionContext): Future[ClassDepsReport] =
-      Future (
-        parseClass(classSrcFile)
-    )
-
-    override def getPackageDependencies(packageSrcFolder: Any): Future[PackageDepsReport] = ???
-
-    override def getProjectDependencies(projectSrcFolder: Any): Future[ProjectDepsReport] = ???
-
-    private def parseClass(file: File): ClassDepsReport =
-      val cu = StaticJavaParser.parse(file)
-      val usedTypes = ClassDepsReport(file.getName)
-
-      cu.findAll(classOf[ClassOrInterfaceType]).forEach { tpe =>
-        usedTypes.addDep(tpe.getNameAsString)
+      Future {
+        val depList = StaticJavaParser.parse(classSrcFile).findAll(classOf[ClassOrInterfaceType]).toArray.map(_.toString).toSet
+        ClassDepsReport(classSrcFile.getName, depList)
       }
-      usedTypes
 
+    override def getPackageDependencies(packageSrcFolder: File)(implicit ec: ExecutionContext): Future[PackageDepsReport] =
+      Future {
+        if (!packageSrcFolder.isDirectory)
+        throw new IllegalArgumentException("Il percorso specificato non è una directory valida.")
+        val classes = packageSrcFolder
+          .listFiles(_.getName.endsWith(".java"))
+          .toList
+          .map(getClassDependencies)
+          .map(Await.result(_, Duration.Inf))
+
+        PackageDepsReport(packageSrcFolder.getName, classes)
+      }
+
+    override def getProjectDependencies(projectSrcFolder: File)(implicit ec: ExecutionContext): Future[ProjectDepsReport] =
+      Future {
+        if (!projectSrcFolder.isDirectory)
+          throw new IllegalArgumentException("Il percorso specificato non è una directory valida.")
+
+        val packages = projectSrcFolder
+          .listFiles(_.isDirectory)
+          .toList
+          .map(getPackageDependencies)
+          .map(Await.result(_, Duration.Inf))
+
+        ProjectDepsReport(projectSrcFolder.getName, packages)
+      }

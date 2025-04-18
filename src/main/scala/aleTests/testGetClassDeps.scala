@@ -9,25 +9,44 @@ import java.io.File
 @main def runDependencyAnalysis(): Unit =
   val file = File("src/main/scala/aleTests/DummyClass.java") // Cambia questo path con il tuo file .java
   val analyser = DependencyAnalyser()
+  println("TEST CLASS:")
+  val classReport = analyser.getClassDependencies(file)
 
-  println("Analizzando: " + file.getAbsolutePath)
-  println("TEST 1:")
-  val futureReport = analyser.getClassDependencies(file)
-  val report = Await.result(futureReport, 10.seconds)
-  println("File: " + report.className)
-
-  println("Dipendenze trovate:")
-  report.depsList.foreach(dep => println("-" + dep))
-
-  println("TEST 2:")
-  println("Dipendenze trovate:")
-  val futureReport2 = analyser.getClassDependencies(file)
+  classReport.onComplete(r =>
+    r.get.printReport()
+    println("CLASS DEPS = " +  r.get.depsList)
+  )
 
   var i: Int = 0
-  futureReport2.onComplete {res => res.get.depsList.foreach(d => println("-" + d))} //non stampa perché termina prima il main duh
-  println(i)
-
-  while (i<100) //giusto per confermare la asincronità del metodo
-    i = i+1
-    println(i)
+  while (i < 200)
+    i = i + 1
     Thread.sleep(1)
+
+  val packageDir = new File("src/main/scala/aleTests/")
+  println("TEST PACKAGE:")
+  val packageReport = analyser.getPackageDependencies(packageDir)
+  packageReport.onComplete(x =>
+    x.get.printReport()
+    println("PACKAGE DEPS = " +  x.get.depsList)
+  )
+
+  i = 0
+  while (i < 200)
+    i = i + 1
+    Thread.sleep(1)
+
+  val projectDir = new File("src/main/scala/")
+  println("TEST PROJECT:")
+  val projectReport = analyser.getProjectDependencies(projectDir)
+
+  projectReport.onComplete(r =>
+    r.get.printReport()
+    println("PROJECT DEPS = " +  r.get.depsList)
+  )
+  i = 0
+  while (i < 200)
+    i = i + 1
+    Thread.sleep(1)
+
+
+
