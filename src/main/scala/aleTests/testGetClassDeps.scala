@@ -17,19 +17,21 @@ import java.io.File
   val futureReport = analyser.getClassDependencies(file)
 
   val report = futureReport.onComplete(x =>
-    //println("File: " + x.result().className)
-
     println("Dipendenze trovate:")
-    //x.result().depsList.foreach(dep => println("-" + dep))
-    //v.close()
+    x.result().printInformation()
   )
 
   val packageDir = new File("src/main/scala/aleTests/")
+  println("Analizzando: " + packageDir.getAbsolutePath)
+  println("TEST 2:")
   val packageReport = analyser.getPackageDependencies(packageDir)
-  //packageReport.onComplete(x => x.result().printClasses())
+  packageReport.onComplete(x =>
+    x.result().printInformation())
   var i: Int = 0
 
   val projectDir = new File("src/main/scala/")
+  println("Analizzando: " + projectDir.getAbsolutePath)
+  println("TEST 3:")
   val projectReport = analyser.getProjectDependencies(projectDir)
   projectReport.onComplete(
     x =>
