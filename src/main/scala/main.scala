@@ -1,10 +1,7 @@
-import io.vertx.core.*
-import Try.*
-
 @main
-def main(): Unit =
-  println("Hello world!")
-  val x = TryVertxFactory()
-  val v = Vertx.vertx()
-  v.deployVerticle(x)
-
+def runDependencyAnalyser(): Unit = {
+  val gui = Gui.createGui()
+  gui.pack()
+  gui.centerOnScreen()
+  gui.open()
+}
