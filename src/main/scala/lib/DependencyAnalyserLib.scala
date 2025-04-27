@@ -2,6 +2,8 @@ package lib
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.`type`.ClassOrInterfaceType
+import com.github.javaparser.ast.body.{FieldDeclaration, VariableDeclarator}
+import com.github.javaparser.ast.expr.SimpleName
 import io.vertx.core.{AbstractVerticle, CompositeFuture, Future}
 
 import java.io.File
@@ -27,15 +29,22 @@ object DependencyAnalyserLib:
       this.getVertx.executeBlocking(() =>
         if !classSrcFile.isFile && !classSrcFile.getName.endsWith(".java") then
           throw new IllegalArgumentException("Il file non è un sorgente .java.")
-        else 
-//          val depList = StaticJavaParser.parse(classSrcFile)
-//            .findAll(classOf[ClassOrInterfaceType])
-//            .toArray
-//            .map(_.toString)
-//            .toSet
-          val cu = StaticJavaParser.parse(classSrcFile)
-          MyVoidVisitorAdapter.visit(cu, null)
-          ClassDepsReport(classSrcFile, Set.empty), false)
+        else
+          val depList = StaticJavaParser.parse(classSrcFile)
+                      .findAll(classOf[ClassOrInterfaceType])
+                      .toArray
+                      .map(_.toString)
+                      .toSet
+
+          val varSet: Set[String] = StaticJavaParser.parse(classSrcFile)
+              .findAll(classOf[VariableDeclarator])
+                  .asScala
+                  .map(_.getType.toString)
+                  .toSet
+
+          val map: Map[String, Set[String]] = Map("Class or Interface" -> depList, "Variables" -> varSet)
+
+          ClassDepsReport(classSrcFile, depList, map), false)
 
     override def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport] =
       this.getVertx.executeBlocking(() =>
