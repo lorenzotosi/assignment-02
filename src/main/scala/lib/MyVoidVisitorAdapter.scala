@@ -2,7 +2,7 @@ package lib
 
 import com.github.javaparser.ast.`type`.TypeParameter
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}
-import com.github.javaparser.ast.expr.{Name, ObjectCreationExpr, SimpleName}
+import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import com.github.javaparser.ast.{ImportDeclaration, PackageDeclaration}
 
@@ -10,17 +10,22 @@ import scala.jdk.CollectionConverters.*
 
 object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
 
+  private var classOrInt: Set[String] = Set()
+  private var packageDecl: Set[String] = Set()
+  private var fieldsDecl: Set[String] = Set()
+  private var methodsDecl: Set[String] = Set()
+  private var objectCreation: Set[String] = Set()
+  private var variableDecl: Set[String] = Set()
+  private var typePar: Set[String] = Set()
+  private var imports: Set[String] = Set()
+
   /**
    * Finding a type in a class/interface declaration
    */
   override def visit(n: ClassOrInterfaceDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     System.out.println("type " + n.getName + " (class/int decl)")
-  }
-
-  def getName(n: ClassOrInterfaceDeclaration, arg: AnyRef): SimpleName = {
-    super.visit(n, arg)
-    n.getName
+    classOrInt = classOrInt + ("type " + n.getName + " (class/int decl)")
   }
 
   /**
@@ -29,10 +34,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: PackageDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     System.out.println("package " + n.getName + " (package decl)")
-  }
-  def getPackageName(n: PackageDeclaration, arg: AnyRef): Name = {
-    super.visit(n, arg)
-    n.getName
+    packageDecl = packageDecl + ("package " + n.getName + " (package decl)")
   }
 
   /**
@@ -42,11 +44,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     super.visit(n, arg)
     val vd: VariableDeclarator = n.getChildNodes.get(0).asInstanceOf[VariableDeclarator]
     System.out.println("type " + vd.getType.asString + " (field decl)")
-  }
-  def getFields(n: FieldDeclaration, arg: AnyRef): String = {
-    super.visit(n, arg)
-    val vd: VariableDeclarator = n.getChildNodes.get(0).asInstanceOf[VariableDeclarator]
-    vd.getType.asString
+    fieldsDecl = fieldsDecl + ("type " + vd.getType.asString + " (field decl)")
   }
 
   /**
@@ -57,17 +55,10 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     // System.out.println("method: " + n.toString());
     for (p <- n.getParameters.asScala) {
       System.out.println("type " + p.getType.asString + " (method decl, param type)")
+      methodsDecl = methodsDecl + ("type " + p.getType.asString + " (method decl, param type)")
     }
     System.out.println("return type: " + n.getType.asString + " (method decl, return type)")
-  }
-
-  def getMethodsParameters(n: MethodDeclaration, arg: AnyRef): List[String] = {
-    super.visit(n, arg)
-    n.getParameters.asScala.toList.map(x => x.getType.asString())
-  }
-  def getMethodReturn(n: MethodDeclaration, arg: AnyRef): String  = {
-    super.visit(n, arg)
-    n.getType.asString
+    methodsDecl = methodsDecl + ("return type: " + n.getType.asString + " (method decl, return type)")
   }
 
   /**
@@ -77,10 +68,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     super.visit(n, arg)
     val interfaceOrClassType = n.getChildNodes.get(0)
     System.out.println("type " + interfaceOrClassType + " (obj creation decl)")
-  }
-  def getObjectCreationExpr(n: ObjectCreationExpr, arg: AnyRef): String = {
-    super.visit(n, arg)
-    n.getChildNodes.get(0).toString
+    objectCreation = objectCreation + ("type " + interfaceOrClassType.toString + " (obj creation decl)")
   }
 
   /**
@@ -90,10 +78,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     super.visit(n, arg)
     val t = n.getType
     System.out.println("type " + n.getType.asString + " (var decl)")
-  }
-  def getTypeVarDeclaration(n: VariableDeclarator, arg: AnyRef): String = {
-    super.visit(n, arg)
-    n.getType.asString
+    variableDecl = variableDecl + ("type " + n.getType.asString + " (var decl)")
   }
 
   /**
@@ -102,6 +87,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: TypeParameter, arg: AnyRef): Unit = {
     super.visit(n, arg)
     System.out.println("type " + n.asString + "(type decl)")
+    typePar = typePar + ("type " + n.asString + "(type decl)")
   }
 
   /**
@@ -113,10 +99,23 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
       val typeName = n.getChildNodes.get(0)
       val packageName = typeName.getChildNodes.get(0)
       System.out.println("type " + typeName + " package: " + packageName + " (import)")
+      imports = imports + ("type " + typeName.toString + " package: " + packageName.toString + " (import)")
     }
     else {
       val packageName = n.getChildNodes.get(0)
       System.out.println("package " + packageName + " (import)")
+      imports = imports + ("package " + packageName.toString + " (import)")
     }
   }
+
+  def getMap: Map[String, Set[String]] =
+    Map("Class or Interface" -> classOrInt,
+      "Packages" -> packageDecl,
+      "Fields" -> fieldsDecl,
+      "Methods" -> methodsDecl,
+      "Object creation" -> objectCreation,
+      "Variables" -> variableDecl,
+      "Types" -> typePar,
+      "Imports" -> imports)
+
 }

@@ -9,6 +9,6 @@ class ClassDepsReport(val file: File, val depList: Set[String], val map: Map[Str
 
   override def printInformation(): Unit =
     map.foreach((z, y) =>
-      println("   " + z)
-      y.foreach(x => println("    " + x))
+      println(z + ":")
+      y.foreach(x => println(x))
     )

@@ -1,6 +1,7 @@
 package lib
 
 import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.`type`.ClassOrInterfaceType
 import com.github.javaparser.ast.body.{FieldDeclaration, VariableDeclarator}
 import com.github.javaparser.ast.expr.SimpleName
@@ -30,21 +31,25 @@ object DependencyAnalyserLib:
         if !classSrcFile.isFile && !classSrcFile.getName.endsWith(".java") then
           throw new IllegalArgumentException("Il file non è un sorgente .java.")
         else
-          val depList = StaticJavaParser.parse(classSrcFile)
-                      .findAll(classOf[ClassOrInterfaceType])
-                      .toArray
-                      .map(_.toString)
-                      .toSet
+//          val depList = StaticJavaParser.parse(classSrcFile)
+//                      .findAll(classOf[ClassOrInterfaceType])
+//                      .toArray
+//                      .map(_.toString)
+//                      .toSet
 
-          val varSet: Set[String] = StaticJavaParser.parse(classSrcFile)
-              .findAll(classOf[VariableDeclarator])
-                  .asScala
-                  .map(_.getType.toString)
-                  .toSet
+          val cu = StaticJavaParser.parse(classSrcFile)
 
-          val map: Map[String, Set[String]] = Map("Class or Interface" -> depList, "Variables" -> varSet)
+          val x = MyVoidVisitorAdapter
 
-          ClassDepsReport(classSrcFile, depList, map), false)
+          x.visit(cu, null)
+
+          val map: Map[String, Set[String]] = x.getMap
+            //Map("Class or Interface" -> depList,
+            //"Variables" -> varSet,
+//            "Packages" -> packageSet,
+//          "Fields" -> fieldSet)
+
+          ClassDepsReport(classSrcFile, Set(), map), false)
 
     override def getPackageDependencies(packageSrcFolder: File): Future[PackageDepsReport] =
       this.getVertx.executeBlocking(() =>
