@@ -1,6 +1,7 @@
 package lib
 
 import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.CompilationUnit
 import io.vertx.core.{AbstractVerticle, CompositeFuture, Future}
 
 import java.io.File
@@ -24,13 +25,18 @@ object DependencyAnalyserLib:
 
   class DependencyAnalyser extends Analyzer:
     override def getClassDependencies(classSrcFile: File): Future[ClassDepsReport] =
+      val x = MyVoidVisitorAdapter()
       this.getVertx.executeBlocking(() =>
         if !classSrcFile.isFile && !classSrcFile.getName.endsWith(".java") then
           throw new IllegalArgumentException("Il file non è un sorgente .java.")
         else
-          val cu = StaticJavaParser.parse(classSrcFile)
-          val x = MyVoidVisitorAdapter()
-          x.visit(cu, null)
+          try {
+            val cu: CompilationUnit = StaticJavaParser.parse(classSrcFile)
+            x.visit(cu, null)
+          } catch {
+            case ex: Exception =>
+              println(s"Errore durante l'analisi del file ${classSrcFile.getName}: ${ex.getMessage}")
+          }
           val map: Map[String, List[String]] = x.getMap
           ClassDepsReport(classSrcFile, map), false)
 

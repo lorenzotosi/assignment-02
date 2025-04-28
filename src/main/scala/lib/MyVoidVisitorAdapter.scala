@@ -42,9 +42,10 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: FieldDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    val vd: VariableDeclarator = n.getChildNodes.get(0).asInstanceOf[VariableDeclarator]
+    n.getVariables.forEach((vd: VariableDeclarator) => {
+      fieldsDecl = ("type " + vd.getType.asString + " (field decl)") :: fieldsDecl
+    })
     //System.out.println("type " + vd.getType.asString + " (field decl)")
-    fieldsDecl = ("type " + vd.getType.asString + " (field decl)") :: fieldsDecl 
   }
 
   /**

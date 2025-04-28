@@ -4,6 +4,7 @@ import java.io.File;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -17,7 +18,7 @@ public class Main {
 
 	public static void main(String[] args) throws Exception  {
 
-		File file = new File("src/main/java/pcd/ass02/MyClass.java");
+		File file = new File("src/main/scala/aleTests/DummyClass.java");
 		
 		CompilationUnit cu = StaticJavaParser.parse(file);
 				
@@ -44,8 +45,11 @@ public class Main {
 			 */			
             public void visit(FieldDeclaration n, Object arg) {
                 super.visit(n, arg);
-                VariableDeclarator vd = (VariableDeclarator) n.getChildNodes().get(0);
-                System.out.println("type " + vd.getType().asString() + " (field decl)");
+//                VariableDeclarator vd = (VariableDeclarator) n.getChildNodes().get(0);
+//                System.out.println("type " + vd.getType().asString() + " (field decl)");
+                n.getVariables().forEach(vd -> {
+                    System.out.println("type " + vd.getType().asString() + " (field decl)");
+                });
             }
             
 			/**
