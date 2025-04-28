@@ -8,7 +8,7 @@ import com.github.javaparser.ast.{ImportDeclaration, PackageDeclaration}
 
 import scala.jdk.CollectionConverters.*
 
-object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
+class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
 
   private var classOrInt: Set[String] = Set()
   private var packageDecl: Set[String] = Set()
@@ -24,7 +24,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: ClassOrInterfaceDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    System.out.println("type " + n.getName + " (class/int decl)")
+    //System.out.println("type " + n.getName + " (class/int decl)")
     classOrInt = classOrInt + ("type " + n.getName + " (class/int decl)")
   }
 
@@ -33,7 +33,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: PackageDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    System.out.println("package " + n.getName + " (package decl)")
+    //System.out.println("package " + n.getName + " (package decl)")
     packageDecl = packageDecl + ("package " + n.getName + " (package decl)")
   }
 
@@ -43,7 +43,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: FieldDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     val vd: VariableDeclarator = n.getChildNodes.get(0).asInstanceOf[VariableDeclarator]
-    System.out.println("type " + vd.getType.asString + " (field decl)")
+    //System.out.println("type " + vd.getType.asString + " (field decl)")
     fieldsDecl = fieldsDecl + ("type " + vd.getType.asString + " (field decl)")
   }
 
@@ -54,10 +54,10 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     super.visit(n, arg)
     // System.out.println("method: " + n.toString());
     for (p <- n.getParameters.asScala) {
-      System.out.println("type " + p.getType.asString + " (method decl, param type)")
+      //System.out.println("type " + p.getType.asString + " (method decl, param type)")
       methodsDecl = methodsDecl + ("type " + p.getType.asString + " (method decl, param type)")
     }
-    System.out.println("return type: " + n.getType.asString + " (method decl, return type)")
+    //System.out.println("return type: " + n.getType.asString + " (method decl, return type)")
     methodsDecl = methodsDecl + ("return type: " + n.getType.asString + " (method decl, return type)")
   }
 
@@ -67,7 +67,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: ObjectCreationExpr, arg: AnyRef): Unit = {
     super.visit(n, arg)
     val interfaceOrClassType = n.getChildNodes.get(0)
-    System.out.println("type " + interfaceOrClassType + " (obj creation decl)")
+    //System.out.println("type " + interfaceOrClassType + " (obj creation decl)")
     objectCreation = objectCreation + ("type " + interfaceOrClassType.toString + " (obj creation decl)")
   }
 
@@ -77,7 +77,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: VariableDeclarator, arg: AnyRef): Unit = {
     super.visit(n, arg)
     val t = n.getType
-    System.out.println("type " + n.getType.asString + " (var decl)")
+    //System.out.println("type " + n.getType.asString + " (var decl)")
     variableDecl = variableDecl + ("type " + n.getType.asString + " (var decl)")
   }
 
@@ -86,7 +86,7 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: TypeParameter, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    System.out.println("type " + n.asString + "(type decl)")
+    //System.out.println("type " + n.asString + "(type decl)")
     typePar = typePar + ("type " + n.asString + "(type decl)")
   }
 
@@ -98,12 +98,12 @@ object MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     if (!(n.isAsterisk)) {
       val typeName = n.getChildNodes.get(0)
       val packageName = typeName.getChildNodes.get(0)
-      System.out.println("type " + typeName + " package: " + packageName + " (import)")
+      //System.out.println("type " + typeName + " package: " + packageName + " (import)")
       imports = imports + ("type " + typeName.toString + " package: " + packageName.toString + " (import)")
     }
     else {
       val packageName = n.getChildNodes.get(0)
-      System.out.println("package " + packageName + " (import)")
+      //System.out.println("package " + packageName + " (import)")
       imports = imports + ("package " + packageName.toString + " (import)")
     }
   }

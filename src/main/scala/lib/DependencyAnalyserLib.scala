@@ -39,7 +39,7 @@ object DependencyAnalyserLib:
 
           val cu = StaticJavaParser.parse(classSrcFile)
 
-          val x = MyVoidVisitorAdapter
+          val x = MyVoidVisitorAdapter()
 
           x.visit(cu, null)
 
