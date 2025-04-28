@@ -6,7 +6,7 @@ import java.io.File
 
 class ProjectDepsReport(val projectName: File, val packages: List[PackageDepsReport]) extends Report:
 
-  override def depsList: Set[String] = packages.flatMap(x => x.depsList).toSet
+  override def depsList: List[String] = packages.flatMap(x => x.depsList)
 
   override def printInformation(): Unit = 
     println("Project name: ".concat(projectName.getName))

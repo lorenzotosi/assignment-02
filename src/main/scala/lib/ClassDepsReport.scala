@@ -1,12 +1,11 @@
 package lib
 
-import lib.DependencyAnalyserLib.Report
+import lib.DependencyAnalyserLib.{BasicReport, Report}
 
 import java.io.File
 
-class ClassDepsReport(val file: File, val depList: Set[String], val map: Map[String, Set[String]]) extends Report:
-  override def depsList: Set[String] = depList
-
+class ClassDepsReport(val file: File, val map: Map[String, List[String]]) extends BasicReport:
+  
   override def printInformation(): Unit = {
     println("  Nome file analizzato: " + file.getName)
     map.foreach((z, y) =>
