@@ -45,16 +45,20 @@ object DependencyAnalyserLib:
           if !packageSrcFolder.isDirectory then
             throw new IllegalArgumentException("Il percorso specificato non è un package.")
           else
-            packageSrcFolder.listFiles(f =>
-              f.isFile && f.getName.endsWith(".java")), false)
+            packageSrcFolder.listFiles(f => 
+              f.isDirectory || (f.isFile && f.getName.endsWith(".java"))), false)
         .compose(javaFiles =>
-          Future.join(javaFiles.map(getClassDependencies).toList.asJava)
+          val subPackagesFuture = javaFiles.filter(_.isDirectory).map(getPackageDependencies)
+          val filesFuture = javaFiles.filter(_.isFile).map(getClassDependencies)
+          Future.join((subPackagesFuture ++ filesFuture).toList.asJava)
             .map(composite =>
+              val classDepsReports = (0 until composite.size())
+                .map(composite.resultAt[ClassDepsReport])
+                .toList
+    
               PackageDepsReport(
                 packageSrcFolder,
-                (0 until composite.size())
-                  .map(composite.resultAt[ClassDepsReport])
-                  .toList
+                classDepsReports
               )
             )
         )
