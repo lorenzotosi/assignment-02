@@ -16,7 +16,10 @@ class PackageDepsReport(
       }
     ) ++ subPackages.flatMap(_.depsList)
 
-  override def printInformation(): Unit =
-    println(s" Package name: ${packageName.getName}")
-    subPackages.foreach(_.printInformation())
-    classes.foreach(_.printInformation())
+  override def printInformation(pref: String = ""): Unit =
+    println(pref + s" Package name: ${packageName.getName}")
+    classes.foreach(_.printInformation(pref))
+    subPackages.foreach(sub => {
+      println(pref + "  Subpackage: " + sub.packageName.getName)
+      sub.printInformation(pref + "    ")
+    })

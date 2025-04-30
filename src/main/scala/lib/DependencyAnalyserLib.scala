@@ -11,7 +11,7 @@ import scala.jdk.CollectionConverters.*
 object DependencyAnalyserLib:
 
   trait BasicReport:
-    def printInformation(): Unit
+    def printInformation(pref: String): Unit
 
   trait Report extends BasicReport:
     def depsList: List[String]
