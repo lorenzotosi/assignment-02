@@ -24,6 +24,7 @@ object DependencyAnalyserLib:
     def getProjectDependencies(projectSrcFolder: File): Future[ProjectDepsReport]
 
   class DependencyAnalyser extends Analyzer:
+
     override def getClassDependencies(classSrcFile: File): Future[ClassDepsReport] =
       val x = MyVoidVisitorAdapter()
       this.getVertx.executeBlocking(() =>
@@ -45,22 +46,24 @@ object DependencyAnalyserLib:
           if !packageSrcFolder.isDirectory then
             throw new IllegalArgumentException("Il percorso specificato non è un package.")
           else
-            packageSrcFolder.listFiles(f => 
+            packageSrcFolder.listFiles(f =>
               f.isDirectory || (f.isFile && f.getName.endsWith(".java"))), false)
         .compose(javaFiles =>
-          val subPackagesFuture = javaFiles.filter(_.isDirectory).map(getPackageDependencies)
-          val filesFuture = javaFiles.filter(_.isFile).map(getClassDependencies)
-          Future.join((subPackagesFuture ++ filesFuture).toList.asJava)
-            .map(composite =>
-              val classDepsReports = (0 until composite.size())
-                .map(composite.resultAt[ClassDepsReport])
+          val (directories, files) = javaFiles.partition(_.isDirectory)
+          val subPackagesFutures = directories.map(getPackageDependencies)
+          val classFutures = files.map(getClassDependencies)
+
+          Future.join(subPackagesFutures.toList.asJava).compose { subPackagesComposite =>
+            Future.join(classFutures.toList.asJava).map { classesComposite =>
+              val subPackages = (0 until subPackagesComposite.size())
+                .map(subPackagesComposite.resultAt[PackageDepsReport])
                 .toList
-    
-              PackageDepsReport(
-                packageSrcFolder,
-                classDepsReports
-              )
-            )
+              val classes = (0 until classesComposite.size())
+                .map(classesComposite.resultAt[ClassDepsReport])
+                .toList
+              PackageDepsReport(packageSrcFolder, subPackages, classes)
+            }
+          }
         )
 
     override def getProjectDependencies(projectSrcFolder: File): Future[ProjectDepsReport] =
