@@ -32,21 +32,28 @@ object ReactiveDepAnalyser:
 				if !packageSrcFolder.isDirectory then
 					emitter.onError(new IllegalArgumentException("Il percorso specificato non è un package."))
 				else
-					val files = packageSrcFolder.listFiles(f => f.isDirectory || (f.isFile && f.getName.endsWith(".java")))
+					val files = packageSrcFolder.listFiles(f =>
+						f.isDirectory || (f.isFile && f.getName.endsWith(".java"))
+					)
 					val (directories, javaFiles) = files.partition(_.isDirectory)
 
-					val subPackages = directories.map(getPackageDependencies).toList
-					val classes = javaFiles.map(getClassDependencies).toList
-
-					Observable.fromIterable(subPackages.asJava)
-						.flatMapSingle(identity)
+					val subPackages = Observable.fromIterable(directories.toSeq.asJava)
+						.flatMapSingle(getPackageDependencies)
 						.toList
-						.flatMap(subPackagesList =>
-							Observable.fromIterable(classes.asJava)
-								.flatMapSingle(identity)
-								.toList
-								.map(classesList => PackageDepsReport(packageSrcFolder, subPackagesList.asScala.toList, classesList.asScala.toList))
-						).subscribe(emitter.onSuccess, emitter.onError)
+
+					val classes = Observable.fromIterable(javaFiles.toSeq.asJava)
+						.flatMapSingle(getClassDependencies)
+						.toList
+
+					subPackages.flatMap { subPackagesList =>
+						classes.map { classesList =>
+							PackageDepsReport(
+								packageSrcFolder,
+								subPackagesList.asScala.toList,
+								classesList.asScala.toList
+							)
+						}
+					}.subscribe(emitter.onSuccess, emitter.onError)
 			})
 
 		def getProjectDependencies(projectSrcFolder: File): Single[ProjectDepsReport] =
