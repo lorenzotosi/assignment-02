@@ -1,4 +1,4 @@
-import lib.ReactiveDepAnalyser.ReactiveDependencyAnalyser
+import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 import lib.{ClassDepsReport, PackageDepsReport, ProjectDepsReport}
 
 import scala.swing._
