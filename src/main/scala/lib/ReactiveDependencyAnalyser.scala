@@ -9,7 +9,7 @@ object ReactiveDependencyAnalyser:
 
   class ReactiveDependencyAnalyser:
 
-    def getClassDependencies(classSrcFile: File): ClassDepsReport =
+    private def getClassDependencies(classSrcFile: File): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
