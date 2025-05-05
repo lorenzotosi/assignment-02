@@ -11,3 +11,10 @@ class ClassDepsReport(val file: File, val map: Map[String, List[String]]) extend
       if y.nonEmpty then y.foreach(x => println(pref + "    " + x)) else println(pref + "    -")
     )
   }
+
+  def getStrings: String =
+    map.map { case (key, values) =>
+      s"$key -> ${if values.nonEmpty then values.mkString(", ") else "-"}"
+    }.mkString("\n")
+    
+

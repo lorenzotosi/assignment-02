@@ -1,5 +1,7 @@
-import scala.swing._
-import scala.swing.event._
+import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
+
+import scala.swing.*
+import scala.swing.event.*
 import java.io.File
 
 object Gui:
@@ -65,7 +67,13 @@ object Gui:
         }
 
       case ButtonClicked(`startButton`) =>
-        statusBox.append("Starting analysis...\n")
+        val x = ReactiveDependencyAnalyser()
+
+        val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
+
+        val y = x.getClassPaths(folderChooser.selectedFile).subscribeOn(scheduler)
+          .subscribe(p => statusBox.append(p.getStrings + "\n \n"))
+
 
     }
   }
