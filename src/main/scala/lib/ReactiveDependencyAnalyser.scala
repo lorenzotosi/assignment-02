@@ -28,6 +28,29 @@ object ReactiveDependencyAnalyser:
 			}.subscribeOn(scheduler)
 		}
 
+		def getClassPaths(path: File): Observable[File] =
+			if !path.isDirectory then
+				Observable.error(IllegalArgumentException("Il percorso specificato non è una cartella."))
+			else
+				Observable.create(emitter => {
+					def searchFiles(dir: File): Unit = {
+						val files = dir.listFiles
+						if files != null then
+							files.foreach { file =>
+								if file.isDirectory then
+									searchFiles(file)
+								else if file.getName.endsWith(".java") then
+									emitter.onNext(file)
+							}
+					}
+					try
+						searchFiles(path)
+						emitter.onComplete()
+					catch
+						case ex: Exception => emitter.onError(ex)
+				})
+
+
 		override def getPackageDependencies(packageSrcFolder: File): Observable[PackageDepsReport] =
 			if !packageSrcFolder.isDirectory then
 				Observable.error(IllegalArgumentException("Il percorso specificato non è un package."))
