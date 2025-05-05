@@ -30,6 +30,8 @@ object Gui:
     val selectFolderButton = new Button("Browse")
 
     val startButton = new Button("Start Analysis")
+    startButton.enabled = false
+    val warningLabel = new Label("Select project folder first")
 
     val classCountLabel = new Label("Classes/Interfaces: 0")
     val dependencyCountLabel = new Label("Dependencies: 0")
@@ -49,6 +51,7 @@ object Gui:
     contents = new BorderPanel {
       layout(new BoxPanel(Orientation.Vertical) {
         contents += new FlowPanel(folderLabel, folderField, selectFolderButton)
+        contents += new FlowPanel(warningLabel)
         contents += new FlowPanel(startButton)
         contents += new FlowPanel(classCountLabel, dependencyCountLabel)
         contents += new ScrollPane(statusBox)
@@ -64,15 +67,21 @@ object Gui:
         val result = folderChooser.showOpenDialog(null)
         if (result == FileChooser.Result.Approve) {
           folderField.text = folderChooser.selectedFile.getAbsolutePath
+          startButton.enabled = true
+          warningLabel.text = ""
         }
 
       case ButtonClicked(`startButton`) =>
+        // startButton should be disabled until end of analysis
         val x = ReactiveDependencyAnalyser()
 
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
         val y = x.getClassPaths(folderChooser.selectedFile).subscribeOn(scheduler)
           .subscribe(p => statusBox.append(p.getStrings + "\n \n"))
+
+
+
 
 
     }
