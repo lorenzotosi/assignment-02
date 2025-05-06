@@ -25,23 +25,20 @@ object ReactiveDependencyAnalyser:
         Observable.error(IllegalArgumentException("Il percorso specificato non è una cartella."))
       else
         Observable.create(emitter => {
-            def searchFiles(dir: File): Unit = {
-              val files = dir.listFiles
-              if files != null then
-                files.foreach { file =>
-                  if file.isDirectory then
-                    searchFiles(file)
-                  else if file.getName.endsWith(".java") then {
-                    val x: ClassDepsReport = getClassDependencies(file)
-                    emitter.onNext(x)
-                    Thread.sleep(1000)
-                  }
-                }
-            }
-
-            try
-              searchFiles(path)
-              emitter.onComplete()
-            catch
-              case ex: Exception => emitter.onError(ex)
+          def searchFiles(dir: File): Unit =
+            val files = dir.listFiles
+            if files != null then
+              files.foreach(file =>
+                if file.isDirectory then
+                  searchFiles(file)
+                else if file.getName.endsWith(".java") then
+                  val x: ClassDepsReport = getClassDependencies(file)
+                  emitter.onNext(x)
+                  Thread.sleep(1000)
+              )
+          try
+            searchFiles(path)
+            emitter.onComplete()
+          catch
+            case ex: Exception => emitter.onError(ex)
           })
