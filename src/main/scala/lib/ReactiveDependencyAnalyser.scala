@@ -34,7 +34,6 @@ object ReactiveDependencyAnalyser:
                 else if file.getName.endsWith(".java") then
                   val x: ClassDepsReport = getClassDependencies(file)
                   emitter.onNext(x)
-                  Thread.sleep(1000)
               )
           try
             searchFiles(path)
