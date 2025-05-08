@@ -13,8 +13,8 @@ object ReactiveDependencyAnalyser:
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
-        println(s"Analizzando la classe: ${classSrcFile.getAbsolutePath}")
-        println(Thread.currentThread().getName)
+        // println(s"Analizzando la classe: ${classSrcFile.getAbsolutePath}")
+        // println(Thread.currentThread().getName)
         val visitor = new MyVoidVisitorAdapter()
         StaticJavaParser.parse(classSrcFile).accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getMap)

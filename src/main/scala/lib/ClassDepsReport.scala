@@ -18,4 +18,7 @@ class ClassDepsReport(val file: File, val map: Map[String, List[String]]) extend
       s"$key -> ${if values.nonEmpty then values.mkString(", ") else "-"}"
     }.mkString("\n")
     
+  def getFile: File = file
+  def getMap: Map[String, List[String]] = map
+    
 

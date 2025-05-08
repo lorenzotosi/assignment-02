@@ -14,3 +14,5 @@ libraryDependencies ++= Seq(
 libraryDependencies += "com.github.javaparser" % "javaparser-core" % "3.26.4"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+
+libraryDependencies += "com.github.vlsi.mxgraph" % "jgraphx" % "4.2.2"
