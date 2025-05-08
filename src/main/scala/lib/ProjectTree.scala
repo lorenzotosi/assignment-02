@@ -6,24 +6,14 @@ object ProjectTree:
   enum NodeType:
     case Class, Interface, Package, Module
   
-  class Node:
-    var name: String = ""
-    var children: List[Node] = List()
-    var parent: Option[Node] = None
-    var nodeType: NodeType = NodeType.Class
-    
-    def this(name: String, nodeType: NodeType) =
-      this()
-      this.name = name
-      this.nodeType = nodeType
+  class Node(val name: String = "",
+             val nodeType: NodeType = NodeType.Class,
+             val children: List[Node] = List(),
+             val parent: Option[Node] = None):
       
-    def addChild(child: Node): Unit =
-      children = children :+ child
-      child.parent = Some(this)
-      
-    def removeChild(child: Node): Unit =
-      children = children.filterNot(_ == child)
-      child.parent = None
+    def addChild(child: Node): Node = Node(name, nodeType, children :+ child, Some(this))
+
+    def removeChild(child: Node): Node = Node(name, nodeType, children.filterNot(_ == child), None)
       
     def getChildren: List[Node] = children
     def getParent: Option[Node] = parent
@@ -31,7 +21,7 @@ object ProjectTree:
     def getNodeType: NodeType = nodeType
     
   class ProjectTree:
-    var root: Node = new Node("Root", NodeType.Module)
+    val root: Node = new Node("Root", NodeType.Module)
     
     def addNode(name: String, nodeType: NodeType, parent: Option[Node]): Node =
       val newNode = new Node(name, nodeType)
