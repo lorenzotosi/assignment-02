@@ -6,15 +6,6 @@ import java.io.File
 
 object Gui:
 
-  // Eventi custom per comunicare i dati dinamici alla GUI
-  case class UpdateClassCount(count: Int) extends Event
-
-  case class UpdateDependencyCount(count: Int) extends Event
-
-  case class UpdateStatus(message: String) extends Event
-
-  case class AnalysisStarted() extends Event
-
   def createGui(): Frame = new MainFrame {
     title = "Dependency Analyser"
 
@@ -35,7 +26,7 @@ object Gui:
 
     val classCountLabel = new Label("Classes/Interfaces: 0")
     val dependencyCountLabel = new Label("Dependencies: 0")
-    val statusBox = new TextArea {
+    val statusBox: TextArea = new TextArea {
       editable = false
       rows = 10
       lineWrap = true
@@ -54,7 +45,6 @@ object Gui:
         contents += new FlowPanel(warningLabel)
         contents += new FlowPanel(startButton)
         contents += new FlowPanel(classCountLabel, dependencyCountLabel)
-        contents += new ScrollPane(statusBox)
         contents += graphPanel
         border = Swing.EmptyBorder(10, 10, 10, 10)
       }) = BorderPanel.Position.Center
@@ -73,16 +63,13 @@ object Gui:
 
       case ButtonClicked(`startButton`) =>
         // startButton should be disabled until end of analysis
+        statusBox.text = ""
         val x = ReactiveDependencyAnalyser()
 
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
         val y = x.getClassPaths(folderChooser.selectedFile).subscribeOn(scheduler)
           .subscribe(p => statusBox.append(p.getStrings + "\n \n"))
-
-
-
-
-
+        graphPanel.contents = statusBox
     }
   }
