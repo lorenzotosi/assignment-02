@@ -43,4 +43,6 @@ replay_pid*
 *.ipr
 *.iml
 out/
-.bsp/sbt.json
+
+.bsp/*
+.bsp
