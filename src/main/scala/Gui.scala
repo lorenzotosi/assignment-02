@@ -6,9 +6,9 @@ import java.io.File
 import javax.swing.{JScrollPane, JTree}
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import lib.ProjectTree.*
-
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
+
 
 
 object Gui:
@@ -72,6 +72,8 @@ object Gui:
 
       case ButtonClicked(`startButton`) =>
         statusBox.text = ""
+        var nClasses: Int = 0
+
         val analyser = ReactiveDependencyAnalyser()
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
@@ -112,6 +114,8 @@ object Gui:
               // Add class node
               val className = file.getName.stripSuffix(".java")
               projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
+              nClasses += 1
+              classCountLabel.text = "Classes/Interfaces: " + nClasses
 
               // Update JTree
               def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode = {
