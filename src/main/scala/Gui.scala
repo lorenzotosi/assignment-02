@@ -3,9 +3,11 @@ import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 import scala.swing.*
 import scala.swing.event.*
 import java.io.File
-import javax.swing.{JTree, JScrollPane}
-import javax.swing.tree.{DefaultTreeModel, DefaultMutableTreeNode, TreePath}
+import javax.swing.{JScrollPane, JTree}
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import lib.ProjectTree.*
+
+import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 
@@ -19,7 +21,7 @@ object Gui:
     folderChooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
 
     val folderLabel = new Label("Source Folder: ")
-    val folderField = new TextField {
+    val folderField: TextField = new TextField {
       columns = 30
       editable = false
     }
@@ -39,9 +41,9 @@ object Gui:
     }
 
     // Placeholder grafico per il grafo delle dipendenze
-    var treeModel: DefaultTreeModel = _
-    var jTree: JTree = _
-    val graphPanel = new ScrollPane() {
+    var treeModel: DefaultTreeModel = uninitialized
+    var jTree: JTree = uninitialized
+    val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
 
