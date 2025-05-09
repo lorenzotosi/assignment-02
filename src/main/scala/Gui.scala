@@ -1,14 +1,13 @@
+import lib.ClassDepsReport
+import lib.ProjectTree.*
 import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 
+import java.io.File
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
+import javax.swing.{JScrollPane, JTree}
+import scala.jdk.CollectionConverters.*
 import scala.swing.*
 import scala.swing.event.*
-import java.io.File
-import javax.swing.{JScrollPane, JTree}
-import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
-import lib.ProjectTree.*
-
-import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
 
 
 object Gui:
@@ -41,8 +40,8 @@ object Gui:
     }
 
     // Placeholder grafico per il grafo delle dipendenze
-    var treeModel: DefaultTreeModel = uninitialized
-    var jTree: JTree = uninitialized
+    //var treeModel: DefaultTreeModel = uninitialized
+    //var jTree: JTree = uninitialized
     val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
@@ -78,14 +77,15 @@ object Gui:
         // Initialize ProjectTree and JTree
         val projectTree = new ProjectTree()
         val rootTreeNode = new DefaultMutableTreeNode("Root")
-        treeModel = new DefaultTreeModel(rootTreeNode)
-        jTree = new JTree(treeModel)
+        val treeModel: DefaultTreeModel = new DefaultTreeModel(rootTreeNode)
+        val jTree: JTree = new JTree(treeModel)
         graphPanel.contents = Component.wrap(new JScrollPane(jTree))
 
         val subscription = analyser.getClassPaths(folderChooser.selectedFile)
           .subscribeOn(scheduler)
           .subscribe(
             p => Swing.onEDT {
+              val obj: ClassDepsReport = p
               val file = p.getFile
               val projectRoot = folderChooser.selectedFile
 
@@ -96,22 +96,19 @@ object Gui:
               val packageParts = relativePath.iterator.asScala.toList.map(_.toString)
 
               // Update ProjectTree
-              var currentParentNode = projectTree.getRoot
-              packageParts.foreach { part =>
-                val existingChild = currentParentNode.getChildren.find { n =>
-                  n.getName == part && n.getNodeType == NodeType.Package
-                }
-                existingChild match {
-                  case Some(child) => currentParentNode = child
-                  case None =>
-                    val newNode = projectTree.addNode(part, NodeType.Package, Some(currentParentNode))
-                    currentParentNode = newNode
+              val currentParentNode = packageParts.foldLeft(projectTree.getRoot) { (currentParentNode, part) =>
+                currentParentNode.getChildren.find(n => n.getName == part && n.getNodeType == NodeType.Package) match {
+                  case Some(child) => child
+                  case None => projectTree.addNode(part, NodeType.Package, Some(currentParentNode))
                 }
               }
 
               // Add class node
-              val className = file.getName.stripSuffix(".java")
-              projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
+              val className = file.getName
+              val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
+              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
+                v.foreach(el => projectTree.addNode(el, NodeType.Interface, Some(node)))
+              })
 
               // Update JTree
               def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode = {
@@ -126,9 +123,8 @@ object Gui:
                 }
               }
 
-              var treeParent = rootTreeNode
-              packageParts.foreach { part =>
-                treeParent = findOrCreateTreeNode(treeParent, part)
+              val treeParent = packageParts.foldLeft(rootTreeNode) { (treeParent, part) =>
+                findOrCreateTreeNode(treeParent, part)
               }
               val classNode = new DefaultMutableTreeNode(className)
               treeParent.add(classNode)
