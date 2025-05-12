@@ -1,18 +1,15 @@
 import GraphVisualization.stage
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList
 import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel}
-import javafx.scene.layout.AnchorPane
 import lib.ClassDepsReport
 import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
-import scalafx.Includes.jfxPane2sfx
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.*
-import scalafx.geometry.Insets
-import scalafx.scene.control.*
-import scalafx.scene.layout.*
-import scalafx.scene.*
 import scalafx.geometry.*
 import scalafx.geometry.Pos.TopRight
+import scalafx.scene.*
+import scalafx.scene.control.*
+import scalafx.scene.layout.*
 import scalafx.stage.DirectoryChooser
 
 object GuiFx extends JFXApp3 {
@@ -68,27 +65,31 @@ object GuiFx extends JFXApp3 {
             val obj: ClassDepsReport = p
 
             val filename = obj.file.getName
+            if !graph.vertices().contains(filename) then
+              graph.insertVertex(filename)
 
-            if !graph.vertices().contains(obj.file.getName) then
-              graph.insertVertex(obj.file.getName)
+              obj.map.foreach { (x, y) =>
+                y.foreach { c =>
+                  try
+                    if (!graph.vertices().contains(c)) {
+                      println(c)
+                      graph.insertVertex(c)
+                    }
+                    graph.insertEdge(filename, c, count.toString)
+                    count += 1
+                    graphView.setAutomaticLayout(true)
+                    println(count)
+                    // Aggiorna il layout del grafo
+                    graphView.update()
+                  catch {
+                    case e: Exception =>
+                      println(s"Errore durante l'inserimento del vertice o dell'arco: ${e.getMessage}")
 
-            obj.map.foreach((x, y) => {
-              if x.equals("Class or Interface") then
-                y.foreach(c =>
-                  if !graph.vertices().contains(c) then {
-                    graph.insertVertex(c)
                   }
-                  graph.insertEdge(obj.file.getName, c, count.toString)
-                  count = count + 1
-                  classCounter.accessibleText = ("Classi/Interfacce: " + count) //todo: per qualche motivo non va zio pergola
-                  infoBox.setText("Classi/Interfacce: " + count)
-                )
-            })
+                }
+              }
 
-            graphView.setAutomaticLayout(true)
 
-            // Aggiorna il layout del grafo
-            graphView.update()
           })
       }
     }
@@ -100,18 +101,13 @@ object GuiFx extends JFXApp3 {
     }
     
     // Pannello superiore con controlli
-    val topLeftPanel = new VBox {
+    val topPanel = new VBox {
       spacing = 10
       padding = Insets(10)
       children = Seq(openButton, pathField)
       style = "-fx-background-color: #FFE4B5;"
       maxWidth = 400
       maxHeight = 200
-    }
-
-    // TopPanel
-    val topPanel = new HBox {
-      children = Seq(topLeftPanel, topRightPanel)
     }
 
     // Layout principale
