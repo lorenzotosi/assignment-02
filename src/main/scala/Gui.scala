@@ -12,6 +12,39 @@ import scala.swing.event.*
 
 object Gui:
 
+  case class TreeNodeInfo(name: String, nodeType: NodeType):
+    override def toString: String = name
+
+
+  class CustomTreeCellRenderer extends javax.swing.tree.DefaultTreeCellRenderer {
+    override def getTreeCellRendererComponent(
+                                               tree: JTree,
+                                               value: Any,
+                                               sel: Boolean,
+                                               expanded: Boolean,
+                                               leaf: Boolean,
+                                               row: Int,
+                                               hasFocus: Boolean
+                                             ): java.awt.Component = {
+      super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
+      value match {
+        case node: DefaultMutableTreeNode =>
+          node.getUserObject match {
+            case TreeNodeInfo(_, NodeType.Package) =>
+              if (expanded) setIcon(getOpenIcon)
+              else setIcon(getClosedIcon)
+            case TreeNodeInfo(_, NodeType.Class) =>
+              setIcon(getLeafIcon)
+            case TreeNodeInfo(_, NodeType.Interface) =>
+              setIcon(getLeafIcon) // Or another icon
+            case _ => // Default handling
+          }
+        case _ =>
+      }
+      this
+    }
+  }
+
   def createGui(): Frame = new MainFrame {
     title = "Dependency Analyser"
 
@@ -79,8 +112,8 @@ object Gui:
         val rootTreeNode = new DefaultMutableTreeNode("Root")
         val treeModel: DefaultTreeModel = new DefaultTreeModel(rootTreeNode)
         val jTree: JTree = new JTree(treeModel)
+        jTree.setCellRenderer(new CustomTreeCellRenderer())
         graphPanel.contents = Component.wrap(new JScrollPane(jTree))
-
         val subscription = analyser.getClassPaths(folderChooser.selectedFile)
           .subscribeOn(scheduler)
           .subscribe(
@@ -126,7 +159,7 @@ object Gui:
               val treeParent = packageParts.foldLeft(rootTreeNode) { (treeParent, part) =>
                 findOrCreateTreeNode(treeParent, part)
               }
-              val classNode = new DefaultMutableTreeNode(className)
+              val classNode = new DefaultMutableTreeNode(TreeNodeInfo(className, NodeType.Class))
               treeParent.add(classNode)
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
@@ -139,7 +172,6 @@ object Gui:
                 })
 
               })
-
 
               val pathNodes = treeParent.getPath.map(_.asInstanceOf[Object])
               val path = new TreePath(pathNodes)
