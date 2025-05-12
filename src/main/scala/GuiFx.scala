@@ -2,6 +2,8 @@ import GraphVisualization.stage
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList
 import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel}
 import javafx.scene.layout.AnchorPane
+import lib.ClassDepsReport
+import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 import scalafx.Includes.jfxPane2sfx
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.*
@@ -27,42 +29,8 @@ object GuiFx extends JFXApp3 {
     }
 
     pathField.setMinWidth(300)
-
-    // Bottone per aprire il dialog
-    val openButton = new Button("Sfoglia...") {
-      onAction = _ => {
-        val selectedDir = directoryChooser.showDialog(stage)
-        if (selectedDir != null) {
-          pathField.text = selectedDir.getAbsolutePath
-        }
-      }
-    }
-
-    // Pannello superiore con controlli
-    val topPanel = new VBox {
-      spacing = 10
-      padding = Insets(10)
-      children = Seq(openButton, pathField)
-      style = "-fx-background-color: #FFE4B5;"
-      maxWidth = 400
-      maxHeight = 200
-    }
-
     val graph = new GraphEdgeList[String, String]()
-    // Add vertices and edges from the sample
-    List("A", "B", "C", "D", "E", "F", "G").foreach(graph.insertVertex)
-    List(
-      ("A", "B", "1"), ("A", "C", "2"), ("A", "D", "3"),
-      ("A", "E", "4"), ("A", "F", "5"), ("A", "G", "6")
-    ).foreach { case (v1, v2, e) => graph.insertEdge(v1, v2, e) }
 
-    List("H", "I", "J", "K", "L", "M", "N").foreach(graph.insertVertex)
-    List(
-      ("H", "I", "7"), ("H", "J", "8"), ("H", "K", "9"),
-      ("H", "L", "10"), ("H", "M", "11"), ("H", "N", "12")
-    ).foreach { case (v1, v2, e) => graph.insertEdge(v1, v2, e) }
-
-    graph.insertEdge("A", "H", "0")
     val placementStrategy = new SmartCircularSortedPlacementStrategy()
     val graphView = new SmartGraphPanel[String, String](graph, placementStrategy)
     // Usa un AnchorPane per permettere il ridimensionamento
@@ -75,8 +43,57 @@ object GuiFx extends JFXApp3 {
     graphContainer.setBackground(Background.fill(javafx.scene.paint.Color.RED))
     graphContainer.children = graphView
     graphContainer.setMinHeight(650)
-
     val graphPanel: Node = new VBox(graphContainer)
+
+    val openButton = new Button("Sfoglia...") {
+      onAction = _ => {
+        val selectedDir = directoryChooser.showDialog(stage)
+        if (selectedDir != null) {
+          pathField.text = selectedDir.getAbsolutePath
+        }
+        var count = 0
+        val analyser = ReactiveDependencyAnalyser()
+        val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
+        analyser.getClassPaths(selectedDir)
+          .subscribeOn(scheduler)
+          .subscribe(p => {
+            val obj: ClassDepsReport = p
+
+            val filename = obj.file.getName
+            if !graph.vertices().contains(obj.file.getName) then
+              graph.insertVertex(obj.file.getName)
+
+            obj.map.foreach((x, y) => {
+              if x.equals("Class or Interface") then
+                y.foreach(c =>
+                  if !graph.vertices().contains(c) then {
+                    graph.insertVertex(c)
+                    graph.insertEdge(obj.file.getName, c, count.toString)
+                    count = count + 1
+                  } else {
+                    graph.insertEdge(obj.file.getName, c, count.toString)
+                    count = count + 1
+                  }
+                )
+            })
+
+            graphView.setAutomaticLayout(true)
+
+            // Aggiorna il layout del grafo
+            graphView.update()
+          })
+      }
+    }
+    
+    // Pannello superiore con controlli
+    val topPanel = new VBox {
+      spacing = 10
+      padding = Insets(10)
+      children = Seq(openButton, pathField)
+      style = "-fx-background-color: #FFE4B5;"
+      maxWidth = 400
+      maxHeight = 200
+    }
 
     // Layout principale
     val root = new VBox {
@@ -92,7 +109,6 @@ object GuiFx extends JFXApp3 {
     }
 
     stage.show()
-    graphView.setAutomaticLayout(true)
     graphView.init()
   }
 }
