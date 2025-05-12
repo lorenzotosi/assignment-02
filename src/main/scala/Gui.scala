@@ -4,7 +4,7 @@ import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 
 import java.io.File
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
-import javax.swing.{JScrollPane, JTree}
+import javax.swing.*
 import scala.jdk.CollectionConverters.*
 import scala.swing.*
 import scala.swing.event.*
@@ -78,6 +78,8 @@ object Gui:
     val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
+    graphPanel.horizontalScrollBar.enabled = false
+    graphPanel.verticalScrollBar.enabled = false
 
     // Layout
     contents = new BorderPanel {
@@ -104,6 +106,8 @@ object Gui:
 
       case ButtonClicked(`startButton`) =>
         statusBox.text = ""
+        var classCount = 0
+        var depsCount = 0
         val analyser = ReactiveDependencyAnalyser()
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
@@ -140,7 +144,11 @@ object Gui:
               val className = file.getName
               val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
               obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
-                v.foreach(el => projectTree.addNode(el, NodeType.Interface, Some(node)))
+                v.foreach(el => {
+                  projectTree.addNode(el, NodeType.Interface, Some(node))
+                  classCount += 1
+                  classCountLabel.text = "Classes/Interfaces: " + classCount
+                })
               })
 
               // Update JTree
@@ -169,6 +177,8 @@ object Gui:
                   val childNode = new DefaultMutableTreeNode(k + " " + s)
                   classNode.add(childNode)
                   treeModel.nodesWereInserted(classNode, Array(classNode.getChildCount - 1))
+                  depsCount += 1
+                  dependencyCountLabel.text = "Dependencies: " + depsCount
                 })
 
               })
@@ -176,7 +186,7 @@ object Gui:
               val pathNodes = treeParent.getPath.map(_.asInstanceOf[Object])
               val path = new TreePath(pathNodes)
               jTree.expandPath(path)
-              jTree.scrollPathToVisible(path)
+              //jTree.scrollPathToVisible(path)
             },
             e => Swing.onEDT(statusBox.append(s"Error: ${e.getMessage}\n")),
             () => Swing.onEDT(statusBox.append("Analysis completed.\n"))
