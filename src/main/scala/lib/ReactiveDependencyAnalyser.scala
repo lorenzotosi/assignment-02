@@ -1,6 +1,8 @@
 package lib
 
-import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.{ParserConfiguration, StaticJavaParser}
+import com.github.javaparser.symbolsolver.JavaSymbolSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.{CombinedTypeSolver, ReflectionTypeSolver}
 import io.reactivex.rxjava3.core.Observable
 
 import java.io.File
@@ -8,6 +10,12 @@ import java.io.File
 object ReactiveDependencyAnalyser:
 
   class ReactiveDependencyAnalyser:
+    private val reflectionSolver = new ReflectionTypeSolver()
+    private val combinedSolver = new CombinedTypeSolver()
+    combinedSolver.add(reflectionSolver)
+    private val symbolSolver = new JavaSymbolSolver(combinedSolver)
+    val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)
+
 
     private def getClassDependencies(classSrcFile: File): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
@@ -16,6 +24,7 @@ object ReactiveDependencyAnalyser:
         // println(s"Analizzando la classe: ${classSrcFile.getAbsolutePath}")
         // println(Thread.currentThread().getName)
         val visitor = new MyVoidVisitorAdapter()
+        StaticJavaParser.setConfiguration(parserConfig)
         StaticJavaParser.parse(classSrcFile).accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getSet)
 
