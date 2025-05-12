@@ -4,7 +4,7 @@ import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 import java.io.File
 
 @main
-def runDependencyAnalyser(): Unit = {
+def main(): Unit = {
 //  val file = File("src/main/scala/aleTests/")
 //
 //  val x = ReactiveDependencyAnalyser()
@@ -18,8 +18,8 @@ def runDependencyAnalyser(): Unit = {
 //    i = i + 1
 //    Thread.sleep(100)
 //  }
-//val gui = Gui.createGui()
-//  gui.pack()
-//  gui.centerOnScreen()
-//  gui.open()
+  val gui = Gui.createGui()
+  gui.pack()
+  gui.centerOnScreen()
+  gui.open()
 }
