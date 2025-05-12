@@ -1,16 +1,15 @@
 import GraphVisualization.stage
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList
 import com.brunomnsilva.smartgraph.graphview.{SmartCircularSortedPlacementStrategy, SmartGraphPanel}
-import javafx.scene.layout.Pane
-import scalafx.scene.{Node, Scene}
-import scalafx.Includes.jfxScene2sfx
+import javafx.scene.layout.AnchorPane
+import scalafx.Includes.jfxPane2sfx
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.*
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, TextField}
-import scalafx.scene.layout.{HBox, VBox}
+import scalafx.scene.layout.{Background, Priority, VBox}
+import scalafx.scene.{Node, Scene}
 import scalafx.stage.DirectoryChooser
-import scalafx.Includes.jfxPane2sfx
 
 object GuiFx extends JFXApp3 {
 
@@ -50,7 +49,6 @@ object GuiFx extends JFXApp3 {
     }
 
     val graph = new GraphEdgeList[String, String]()
-
     // Add vertices and edges from the sample
     List("A", "B", "C", "D", "E", "F", "G").foreach(graph.insertVertex)
     List(
@@ -65,20 +63,26 @@ object GuiFx extends JFXApp3 {
     ).foreach { case (v1, v2, e) => graph.insertEdge(v1, v2, e) }
 
     graph.insertEdge("A", "H", "0")
-
-    // Pannello inferiore vuoto
-//    val smartGraphPanel: SmartGraphPanel[String, String] =  new SmartGraphPanel(graph, new SmartCircularSortedPlacementStrategy())
-//
-//    val scalaFXSmartGraphPanel: Node = new Pane(smartGraphPanel)
-
     val placementStrategy = new SmartCircularSortedPlacementStrategy()
     val graphView = new SmartGraphPanel[String, String](graph, placementStrategy)
-    val scalaFXSmartGraphPanel: Node = new VBox(graphView)
+    // Usa un AnchorPane per permettere il ridimensionamento
+    val graphContainer = new AnchorPane {
+      AnchorPane.setTopAnchor(graphView, 0.0)
+      AnchorPane.setBottomAnchor(graphView, 0.0)
+      AnchorPane.setLeftAnchor(graphView, 0.0)
+      AnchorPane.setRightAnchor(graphView, 0.0)
+    }
+    graphContainer.setBackground(Background.fill(javafx.scene.paint.Color.RED))
+    graphContainer.children = graphView
+    graphContainer.setMinHeight(650)
+
+    val graphPanel: Node = new VBox(graphContainer)
 
     // Layout principale
-    val root = new HBox {
+    val root = new VBox {
       spacing = 10
-      children = Seq(topPanel, scalaFXSmartGraphPanel)
+      children = Seq(topPanel, graphPanel)
+      VBox.setVgrow(graphPanel, Priority.Always)
     }
 
     // Configure main stage
@@ -88,6 +92,7 @@ object GuiFx extends JFXApp3 {
     }
 
     stage.show()
+    graphView.setAutomaticLayout(true)
     graphView.init()
   }
 }
