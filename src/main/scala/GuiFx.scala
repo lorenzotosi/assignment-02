@@ -11,6 +11,8 @@ import scalafx.geometry.Insets
 import scalafx.scene.control.*
 import scalafx.scene.layout.*
 import scalafx.scene.*
+import scalafx.geometry.*
+import scalafx.geometry.Pos.TopRight
 import scalafx.stage.DirectoryChooser
 
 object GuiFx extends JFXApp3 {
@@ -27,6 +29,13 @@ object GuiFx extends JFXApp3 {
       promptText = "Percorso cartella selezionata"
       editable = false
     }
+
+    // Label Counter
+    val classCounter = new Label()
+    classCounter.setAccessibleText("Classi/Interfacce: 0")
+
+    // print info
+    val infoBox = new TextArea()
 
     pathField.setMinWidth(300)
     val graph = new GraphEdgeList[String, String]()
@@ -59,6 +68,7 @@ object GuiFx extends JFXApp3 {
             val obj: ClassDepsReport = p
 
             val filename = obj.file.getName
+
             if !graph.vertices().contains(obj.file.getName) then
               graph.insertVertex(obj.file.getName)
 
@@ -67,12 +77,11 @@ object GuiFx extends JFXApp3 {
                 y.foreach(c =>
                   if !graph.vertices().contains(c) then {
                     graph.insertVertex(c)
-                    graph.insertEdge(obj.file.getName, c, count.toString)
-                    count = count + 1
-                  } else {
-                    graph.insertEdge(obj.file.getName, c, count.toString)
-                    count = count + 1
                   }
+                  graph.insertEdge(obj.file.getName, c, count.toString)
+                  count = count + 1
+                  classCounter.accessibleText = ("Classi/Interfacce: " + count) //todo: per qualche motivo non va zio pergola
+                  infoBox.setText("Classi/Interfacce: " + count)
                 )
             })
 
@@ -83,15 +92,26 @@ object GuiFx extends JFXApp3 {
           })
       }
     }
+
+    // Pannello superiore Info
+    val topRightPanel = new VBox() {
+      alignmentInParent = TopRight
+      children = Seq(classCounter, infoBox)
+    }
     
     // Pannello superiore con controlli
-    val topPanel = new VBox {
+    val topLeftPanel = new VBox {
       spacing = 10
       padding = Insets(10)
       children = Seq(openButton, pathField)
       style = "-fx-background-color: #FFE4B5;"
       maxWidth = 400
       maxHeight = 200
+    }
+
+    // TopPanel
+    val topPanel = new HBox {
+      children = Seq(topLeftPanel, topRightPanel)
     }
 
     // Layout principale
