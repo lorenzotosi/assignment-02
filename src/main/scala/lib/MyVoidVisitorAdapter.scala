@@ -1,10 +1,10 @@
 package lib
 
+import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.`type`.TypeParameter
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}
 import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import com.github.javaparser.ast.{ImportDeclaration, PackageDeclaration}
 
 import scala.jdk.CollectionConverters.*
 
@@ -36,7 +36,8 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: FieldDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     n.getVariables.forEach((vd: VariableDeclarator) => {
-      sets = sets + vd.getType.asString
+      val p = vd.getType.resolve()
+      sets = sets + (vd.getType.asString + " (From: " + p.describe() + ")")
     })
     //System.out.println("type " + vd.getType.asString + " (field decl)")
   }
@@ -46,13 +47,12 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: MethodDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    // System.out.println("method: " + n.toString());
     for (p <- n.getParameters.asScala) {
-      //System.out.println("type " + p.getType.asString + " (method decl, param type)")
-      sets = sets + p.getType.asString
+      val l = p.getType.resolve()
+      sets = sets + (p.getType.asString + " (From: " + l.describe() + ")")
     }
-    //System.out.println("return type: " + n.getType.asString + " (method decl, return type)")
-    sets = sets + n.getType.asString
+    val p = n.getType.resolve()
+    sets = sets + (n.getType.asString + " (From: " + p.describe() + ")")
   }
 
   /**
