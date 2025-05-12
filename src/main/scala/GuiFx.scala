@@ -8,9 +8,9 @@ import scalafx.Includes.jfxPane2sfx
 import scalafx.application.JFXApp3
 import scalafx.application.JFXApp3.*
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Button, TextField}
-import scalafx.scene.layout.{Background, Priority, VBox}
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.control.*
+import scalafx.scene.layout.*
+import scalafx.scene.*
 import scalafx.stage.DirectoryChooser
 
 object GuiFx extends JFXApp3 {
@@ -33,16 +33,15 @@ object GuiFx extends JFXApp3 {
 
     val placementStrategy = new SmartCircularSortedPlacementStrategy()
     val graphView = new SmartGraphPanel[String, String](graph, placementStrategy)
+    graphView.setMinHeight(650)
+    graphView.setMinWidth(950)
     // Usa un AnchorPane per permettere il ridimensionamento
-    val graphContainer = new AnchorPane {
-      AnchorPane.setTopAnchor(graphView, 0.0)
-      AnchorPane.setBottomAnchor(graphView, 0.0)
-      AnchorPane.setLeftAnchor(graphView, 0.0)
-      AnchorPane.setRightAnchor(graphView, 0.0)
+    val graphContainer = new ScrollPane() {
     }
-    graphContainer.setBackground(Background.fill(javafx.scene.paint.Color.RED))
-    graphContainer.children = graphView
+    graphContainer.setBackground(Background.fill(javafx.scene.paint.Color.WHITE))
+    graphContainer.setContent(graphView)
     graphContainer.setMinHeight(650)
+    graphContainer.setMinWidth(950)
     val graphPanel: Node = new VBox(graphContainer)
 
     val openButton = new Button("Sfoglia...") {
