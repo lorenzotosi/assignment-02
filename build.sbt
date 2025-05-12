@@ -30,3 +30,5 @@ libraryDependencies ++= {
 }
 
 libraryDependencies += "com.brunomnsilva" % "smartgraph" % "2.0.0"
+
+libraryDependencies += "com.github.javaparser" % "javaparser-symbol-solver-core" % "3.26.4"
