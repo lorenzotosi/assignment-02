@@ -68,26 +68,26 @@ object GuiFx extends JFXApp3 {
             if !graph.vertices().contains(filename) then
               graph.insertVertex(filename)
 
-              obj.map.foreach { (x, y) =>
-                y.foreach { c =>
-                  try
-                    if (!graph.vertices().contains(c)) {
-                      println(c)
-                      graph.insertVertex(c)
-                    }
-                    graph.insertEdge(filename, c, count.toString)
-                    count += 1
-                    graphView.setAutomaticLayout(true)
-                    println(count)
-                    // Aggiorna il layout del grafo
-                    graphView.update()
-                  catch {
-                    case e: Exception =>
-                      println(s"Errore durante l'inserimento del vertice o dell'arco: ${e.getMessage}")
-
-                  }
-                }
-              }
+//              obj.map.foreach { (x, y) =>
+//                y.foreach { c =>
+//                  try
+//                    if (!graph.vertices().contains(c)) {
+//                      println(c)
+//                      graph.insertVertex(c)
+//                    }
+//                    graph.insertEdge(filename, c, count.toString)
+//                    count += 1
+//                    graphView.setAutomaticLayout(true)
+//                    println(count)
+//                    // Aggiorna il layout del grafo
+//                    graphView.update()
+//                  catch {
+//                    case e: Exception =>
+//                      println(s"Errore durante l'inserimento del vertice o dell'arco: ${e.getMessage}")
+//
+//                  }
+//                }
+//              }
 
 
           })

@@ -17,7 +17,7 @@ object ReactiveDependencyAnalyser:
         // println(Thread.currentThread().getName)
         val visitor = new MyVoidVisitorAdapter()
         StaticJavaParser.parse(classSrcFile).accept(visitor, null)
-        ClassDepsReport(classSrcFile, visitor.getMap)
+        ClassDepsReport(classSrcFile, visitor.getSet)
 
 
     def getClassPaths(path: File): Observable[ClassDepsReport] =

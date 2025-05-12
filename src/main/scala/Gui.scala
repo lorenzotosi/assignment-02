@@ -4,7 +4,7 @@ import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 
 import java.io.File
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
-import javax.swing.*
+import javax.swing.{JScrollPane, JTree}
 import scala.jdk.CollectionConverters.*
 import scala.swing.*
 import scala.swing.event.*
@@ -143,13 +143,16 @@ object Gui:
               // Add class node
               val className = file.getName
               val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
-              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
-                v.foreach(el => {
-                  projectTree.addNode(el, NodeType.Interface, Some(node))
-                  classCount += 1
-                  classCountLabel.text = "Classes/Interfaces: " + classCount
-                })
-              })
+//              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
+//                v.foreach(el => projectTree.addNode(el, NodeType.Interface, Some(node)))
+//              })
+//              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
+//                v.foreach(el => {
+//                  projectTree.addNode(el, NodeType.Interface, Some(node))
+//                  classCount += 1
+//                  classCountLabel.text = "Classes/Interfaces: " + classCount
+//                })
+//              })
 
               // Update JTree
               def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode = {
@@ -172,21 +175,19 @@ object Gui:
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
               // Aggiungi un nodo figlio chiamato "ciao" al nodo classNode
-              obj.map.foreach((k, v) => {
-                v.foreach(s => {
-                  val childNode = new DefaultMutableTreeNode(k + " " + s)
+              obj.map.foreach(v => {
+                  val childNode = new DefaultMutableTreeNode(v)
                   classNode.add(childNode)
                   treeModel.nodesWereInserted(classNode, Array(classNode.getChildCount - 1))
                   depsCount += 1
                   dependencyCountLabel.text = "Dependencies: " + depsCount
                 })
 
-              })
 
               val pathNodes = treeParent.getPath.map(_.asInstanceOf[Object])
               val path = new TreePath(pathNodes)
               jTree.expandPath(path)
-              //jTree.scrollPathToVisible(path)
+              jTree.scrollPathToVisible(path)
             },
             e => Swing.onEDT(statusBox.append(s"Error: ${e.getMessage}\n")),
             () => Swing.onEDT(statusBox.append("Analysis completed.\n"))
