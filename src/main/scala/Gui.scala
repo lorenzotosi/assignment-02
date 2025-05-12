@@ -130,6 +130,17 @@ object Gui:
               treeParent.add(classNode)
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
+              // Aggiungi un nodo figlio chiamato "ciao" al nodo classNode
+              obj.map.foreach((k, v) => {
+                v.foreach(s => {
+                  val childNode = new DefaultMutableTreeNode(k + " " + s)
+                  classNode.add(childNode)
+                  treeModel.nodesWereInserted(classNode, Array(classNode.getChildCount - 1))
+                })
+
+              })
+
+
               val pathNodes = treeParent.getPath.map(_.asInstanceOf[Object])
               val path = new TreePath(pathNodes)
               jTree.expandPath(path)
