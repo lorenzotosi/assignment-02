@@ -4,7 +4,7 @@ import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 import java.io.File
 
 @main
-def runDependencyAnalyser(): Unit = {
+def main(): Unit = {
 //  val file = File("src/main/scala/aleTests/")
 //
 //  val x = ReactiveDependencyAnalyser()
