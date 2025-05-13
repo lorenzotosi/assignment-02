@@ -78,8 +78,18 @@ object Gui:
     val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
-    graphPanel.horizontalScrollBar.enabled = false
-    graphPanel.verticalScrollBar.enabled = false
+//    graphPanel.horizontalScrollBar.enabled = false
+//    graphPanel.verticalScrollBar.enabled = false
+
+    val outputInfo: TextArea = new TextArea() {
+      editable = false
+    }
+
+
+    val outputContainer: ScrollPane = new ScrollPane(outputInfo) {
+      preferredSize = new Dimension(600, 200)
+    }
+
 
     // Layout
     contents = new BorderPanel {
@@ -87,6 +97,7 @@ object Gui:
         contents += new FlowPanel(folderLabel, folderField, selectFolderButton)
         contents += new FlowPanel(warningLabel)
         contents += new FlowPanel(startButton)
+        contents += new FlowPanel(outputContainer) //outputContainer
         contents += new FlowPanel(classCountLabel, dependencyCountLabel)
         contents += graphPanel
         border = Swing.EmptyBorder(10, 10, 10, 10)
@@ -106,10 +117,13 @@ object Gui:
 
       case ButtonClicked(`startButton`) =>
         statusBox.text = ""
+        outputInfo.text = ""
         var classCount = 0
         var depsCount = 0
         val analyser = ReactiveDependencyAnalyser()
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
+
+        outputInfo.append("Analyzing " + folderField.text + "...\n")
 
         // Initialize ProjectTree and JTree
         val projectTree = new ProjectTree()
@@ -125,6 +139,7 @@ object Gui:
               val obj: ClassDepsReport = p
               val file = p.getFile
               val projectRoot = folderChooser.selectedFile
+
 
               // Calculate package structure from file path
               val projectRootPath = projectRoot.toPath.toAbsolutePath
@@ -142,6 +157,10 @@ object Gui:
 
               // Add class node
               val className = file.getName
+              outputInfo.append("  Found " + className + "\n")
+              classCount += 1
+              classCountLabel.text = "Classes/Interfaces: " + classCount
+
               val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
 //              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
 //                v.foreach(el => projectTree.addNode(el, NodeType.Interface, Some(node)))
@@ -175,6 +194,7 @@ object Gui:
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
               // Aggiungi un nodo figlio chiamato "ciao" al nodo classNode
+              var tmp = depsCount
               obj.map.foreach(v => {
                   val childNode = new DefaultMutableTreeNode(v)
                   classNode.add(childNode)
@@ -182,7 +202,8 @@ object Gui:
                   depsCount += 1
                   dependencyCountLabel.text = "Dependencies: " + depsCount
                 })
-
+              outputInfo.append("    With " + (depsCount - tmp) + " Dependencies\n")
+              tmp = depsCount
 
               val pathNodes = treeParent.getPath.map(_.asInstanceOf[Object])
               val path = new TreePath(pathNodes)
