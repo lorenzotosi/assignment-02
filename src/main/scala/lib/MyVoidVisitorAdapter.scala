@@ -21,14 +21,6 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   }
 
   /**
-   * Package declaration
-   */
-//  override def visit(n: PackageDeclaration, arg: AnyRef): Unit = {
-//    super.visit(n, arg)
-//    sets =  sets + n.getName.asString()
-//  }
-
-  /**
    * Finding a type in a field declaration
    */
   override def visit(n: FieldDeclaration, arg: AnyRef): Unit = {
@@ -43,7 +35,6 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
           println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
       }
     })
-    //System.out.println("type " + vd.getType.asString + " (field decl)")
   }
 
   /**
@@ -109,7 +100,14 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: TypeParameter, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    sets = sets + n.asString
+    try {
+      val p = n.resolve()
+      sets = sets + (n.asString + " (From: " + p.describe() + ")")
+    } catch {
+      case e: Exception =>
+        // Gestione dell'eccezione
+        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+    }
   }
 
   /**

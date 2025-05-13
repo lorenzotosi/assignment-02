@@ -11,12 +11,11 @@ object ReactiveDependencyAnalyser:
 
   class ReactiveDependencyAnalyser:
 
-    val visitor = new MyVoidVisitorAdapter()
-
     private def getClassDependencies(classSrcFile: File, parserConfig: ParserConfiguration): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
+        val visitor = new MyVoidVisitorAdapter()
         StaticJavaParser.setConfiguration(parserConfig)
         StaticJavaParser.parse(classSrcFile).accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getSet)
