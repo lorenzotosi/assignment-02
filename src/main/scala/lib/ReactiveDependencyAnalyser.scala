@@ -6,6 +6,7 @@ import com.github.javaparser.{ParserConfiguration, StaticJavaParser}
 import io.reactivex.rxjava3.core.Observable
 
 import java.io.File
+import java.nio.file.Paths
 
 object ReactiveDependencyAnalyser:
 
@@ -30,7 +31,7 @@ object ReactiveDependencyAnalyser:
         val sourceSolver = new JavaParserTypeSolver(path.getAbsolutePath)
         val classLoaderSolver= new ClassLoaderTypeSolver(getClass.getClassLoader)
 
-        val combinedSolver = new CombinedTypeSolver(reflectionSolver, sourceSolver, classLoaderSolver)
+        val combinedSolver = new CombinedTypeSolver(sourceSolver, reflectionSolver, classLoaderSolver)
 
         val symbolSolver = new JavaSymbolSolver(combinedSolver)
         val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)

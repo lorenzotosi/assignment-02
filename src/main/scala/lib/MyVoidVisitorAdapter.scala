@@ -1,6 +1,5 @@
 package lib
 
-import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.`type`.TypeParameter
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}
 import com.github.javaparser.ast.expr.ObjectCreationExpr
@@ -32,7 +31,7 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
       } catch {
         case e: Exception =>
           // Gestione dell'eccezione
-          println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+          println(s"Errore durante la risoluzione del tipo per la variabile '${vd.getName.asString}' nel campo '${n.toString}': ${e.getMessage}")
       }
     })
   }
@@ -49,7 +48,7 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
       } catch {
         case e: Exception =>
           // Gestione dell'eccezione
-          println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+          println(s"Errore durante la risoluzione del tipo per il parametro '${p.getName.asString}' nel metodo '${n.getName.asString}': ${e.getMessage}")
       }
     }
     try {
@@ -58,7 +57,7 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     } catch {
       case e: Exception =>
         // Gestione dell'eccezione
-        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+        println(s"Errore durante la risoluzione del tipo di ritorno nel metodo '${n.getName.asString}': ${e.getMessage}")
     }
   }
 
@@ -109,26 +108,7 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
         println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
     }
   }
-
-  /**
-   * Finding types in import declaration
-   */
-//  override def visit(n: ImportDeclaration, arg: AnyRef): Unit = {
-//    super.visit(n, arg)
-//    if (!(n.isAsterisk)) {
-//      val typeName = n.getChildNodes.get(0)
-//      val packageName = typeName.getChildNodes.get(0)
-//      //System.out.println("type " + typeName + " package: " + packageName + " (import)")
-//      imports = ("type " + typeName.toString + " package: " + packageName.toString + " (import)") :: imports
-//    }
-//    else {
-//      val packageName = n.getChildNodes.get(0)
-//      //System.out.println("package " + packageName + " (import)")
-//      imports = ("package " + packageName.toString + " (import)") :: imports
-//    }
-//  }
-
-
+  
   def getSet: Set[String] = sets
 
 }
