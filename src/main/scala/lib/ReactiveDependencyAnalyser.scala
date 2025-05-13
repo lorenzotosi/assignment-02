@@ -1,8 +1,8 @@
 package lib
 
-import com.github.javaparser.{ParserConfiguration, StaticJavaParser}
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
-import com.github.javaparser.symbolsolver.resolution.typesolvers.{CombinedTypeSolver, ReflectionTypeSolver}
+import com.github.javaparser.symbolsolver.resolution.typesolvers.{ClassLoaderTypeSolver, CombinedTypeSolver, JavaParserTypeSolver, ReflectionTypeSolver}
+import com.github.javaparser.{ParserConfiguration, StaticJavaParser}
 import io.reactivex.rxjava3.core.Observable
 
 import java.io.File
@@ -10,20 +10,13 @@ import java.io.File
 object ReactiveDependencyAnalyser:
 
   class ReactiveDependencyAnalyser:
-    private val reflectionSolver = new ReflectionTypeSolver()
-    private val combinedSolver = new CombinedTypeSolver()
-    combinedSolver.add(reflectionSolver)
-    private val symbolSolver = new JavaSymbolSolver(combinedSolver)
-    val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)
 
+    val visitor = new MyVoidVisitorAdapter()
 
-    private def getClassDependencies(classSrcFile: File): ClassDepsReport =
+    private def getClassDependencies(classSrcFile: File, parserConfig: ParserConfiguration): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
-        // println(s"Analizzando la classe: ${classSrcFile.getAbsolutePath}")
-        // println(Thread.currentThread().getName)
-        val visitor = new MyVoidVisitorAdapter()
         StaticJavaParser.setConfiguration(parserConfig)
         StaticJavaParser.parse(classSrcFile).accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getSet)
@@ -33,6 +26,16 @@ object ReactiveDependencyAnalyser:
       if !path.isDirectory then
         Observable.error(IllegalArgumentException("Il percorso specificato non è una cartella."))
       else
+
+        val reflectionSolver = new ReflectionTypeSolver()
+        val sourceSolver = new JavaParserTypeSolver(path.getAbsolutePath)
+        val classLoaderSolver= new ClassLoaderTypeSolver(getClass.getClassLoader)
+
+        val combinedSolver = new CombinedTypeSolver(reflectionSolver, sourceSolver, classLoaderSolver)
+
+        val symbolSolver = new JavaSymbolSolver(combinedSolver)
+        val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)
+
         Observable.create(emitter => {
           def searchFiles(dir: File): Unit =
             val files = dir.listFiles
@@ -41,7 +44,7 @@ object ReactiveDependencyAnalyser:
                 if file.isDirectory then
                   searchFiles(file)
                 else if file.getName.endsWith(".java") then
-                  val x: ClassDepsReport = getClassDependencies(file)
+                  val x: ClassDepsReport = getClassDependencies(file, parserConfig)
                   emitter.onNext(x)
               )
           try

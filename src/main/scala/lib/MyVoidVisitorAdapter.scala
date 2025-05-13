@@ -17,18 +17,16 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: ClassOrInterfaceDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    //System.out.println("type " + n.getName + " (class/int decl)")
-    sets = sets + n.getName.asString()
+    sets = sets + (n.getName.asString() + " (From: " + n.getFullyQualifiedName.get() + ")")
   }
 
   /**
    * Package declaration
    */
-  override def visit(n: PackageDeclaration, arg: AnyRef): Unit = {
-    super.visit(n, arg)
-    //System.out.println("package " + n.getName + " (package decl)")
-    sets =  sets + n.getName.asString()
-  }
+//  override def visit(n: PackageDeclaration, arg: AnyRef): Unit = {
+//    super.visit(n, arg)
+//    sets =  sets + n.getName.asString()
+//  }
 
   /**
    * Finding a type in a field declaration
@@ -36,8 +34,14 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: FieldDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     n.getVariables.forEach((vd: VariableDeclarator) => {
-      val p = vd.getType.resolve()
-      sets = sets + (vd.getType.asString + " (From: " + p.describe() + ")")
+      try {
+        val p = vd.getType.resolve()
+        sets = sets + (vd.getType.asString + " (From: " + p.describe() + ")")
+      } catch {
+        case e: Exception =>
+          // Gestione dell'eccezione
+          println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+      }
     })
     //System.out.println("type " + vd.getType.asString + " (field decl)")
   }
@@ -48,11 +52,23 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: MethodDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
     for (p <- n.getParameters.asScala) {
-      val l = p.getType.resolve()
-      sets = sets + (p.getType.asString + " (From: " + l.describe() + ")")
+      try {
+        val l = p.getType.resolve()
+        sets = sets + (p.getType.asString + " (From: " + l.describe() + ")")
+      } catch {
+        case e: Exception =>
+          // Gestione dell'eccezione
+          println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+      }
     }
-    val p = n.getType.resolve()
-    sets = sets + (n.getType.asString + " (From: " + p.describe() + ")")
+    try {
+      val p = n.getType.resolve()
+      sets = sets + (n.getType.asString + " (From: " + p.describe() + ")")
+    } catch {
+      case e: Exception =>
+        // Gestione dell'eccezione
+        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+    }
   }
 
   /**
@@ -61,8 +77,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
   override def visit(n: ObjectCreationExpr, arg: AnyRef): Unit = {
     super.visit(n, arg)
     val interfaceOrClassType = n.getChildNodes.get(0)
-    //System.out.println("type " + interfaceOrClassType + " (obj creation decl)")
-    sets =  sets + interfaceOrClassType.toString
+    try {
+      val p = n.getType.resolve()
+      sets = sets + (interfaceOrClassType.toString + " (From: " + p.describe() + ")")
+    } catch {
+      case e: Exception =>
+        // Gestione dell'eccezione
+        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+    }
+
   }
 
   /**
@@ -70,9 +93,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: VariableDeclarator, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    val t = n.getType
-    //System.out.println("type " + n.getType.asString + " (var decl)")
-    sets = sets + n.getType.asString
+    try {
+      val t = n.getType
+      val p = t.resolve()
+      sets = sets + (n.getType.asString + " (From: " + p.describe() + ")")
+    } catch {
+      case e: Exception =>
+        // Gestione dell'eccezione
+        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+    }
   }
 
   /**
@@ -80,7 +109,6 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
    */
   override def visit(n: TypeParameter, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    //System.out.println("type " + n.asString + "(type decl)")
     sets = sets + n.asString
   }
 
@@ -102,15 +130,6 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
 //    }
 //  }
 
-//  def getMap: Map[String, List[String]] =
-//    Map("Class or Interface" -> classOrInt,
-//      "Packages" -> packageDecl,
-//      "Fields" -> fieldsDecl,
-//      "Methods" -> methodsDecl,
-//      "Object creation" -> objectCreation,
-//      "Variables" -> variableDecl,
-//      "Types" -> typePar,
-//      "Imports" -> imports)
 
   def getSet: Set[String] = sets
 
