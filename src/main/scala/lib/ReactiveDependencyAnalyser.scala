@@ -2,23 +2,26 @@ package lib
 
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.{ClassLoaderTypeSolver, CombinedTypeSolver, JavaParserTypeSolver, ReflectionTypeSolver}
-import com.github.javaparser.{ParserConfiguration, StaticJavaParser}
+import com.github.javaparser.{JavaParser, ParserConfiguration, StaticJavaParser}
 import io.reactivex.rxjava3.core.Observable
+import com.github.javaparser.ParserConfiguration.LanguageLevel.*
 
 import java.io.File
-import java.nio.file.Paths
 
 object ReactiveDependencyAnalyser:
 
   class ReactiveDependencyAnalyser:
+
+    val js = new JavaParser()
 
     private def getClassDependencies(classSrcFile: File, parserConfig: ParserConfiguration): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
         val visitor = new MyVoidVisitorAdapter()
-        StaticJavaParser.setConfiguration(parserConfig)
-        StaticJavaParser.parse(classSrcFile).accept(visitor, null)
+        //StaticJavaParser.setConfiguration(parserConfig)
+        //StaticJavaParser.parse(classSrcFile).accept(visitor, null)
+        js.parse(classSrcFile).getResult.get().accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getSet)
 
 
@@ -35,15 +38,19 @@ object ReactiveDependencyAnalyser:
 
         val symbolSolver = new JavaSymbolSolver(combinedSolver)
         val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)
+        parserConfig.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14)
+
+        js.getParserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14)
+        js.getParserConfiguration.setSymbolResolver(symbolSolver)
 
         Observable.create(emitter => {
           def searchFiles(dir: File): Unit =
             val files = dir.listFiles
             if files != null then
               files.foreach(file =>
-                if file.isDirectory then
+                if file.isDirectory then {
                   searchFiles(file)
-                else if file.getName.endsWith(".java") then
+                } else if file.getName.endsWith(".java") then
                   val x: ClassDepsReport = getClassDependencies(file, parserConfig)
                   emitter.onNext(x)
               )
@@ -51,5 +58,8 @@ object ReactiveDependencyAnalyser:
             searchFiles(path)
             emitter.onComplete()
           catch
-            case ex: Exception => emitter.onError(ex)
+            case ex: Exception => {
+              println(ex.getMessage)
+              emitter.onError(ex)
+            }
           })
