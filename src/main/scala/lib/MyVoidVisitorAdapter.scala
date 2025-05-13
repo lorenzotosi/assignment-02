@@ -1,6 +1,6 @@
 package lib
 
-import com.github.javaparser.ast.`type`.TypeParameter
+import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}
 import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
@@ -94,21 +94,12 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     }
   }
 
-  /**
-   * Finding types in type parameter
-   */
-  override def visit(n: TypeParameter, arg: AnyRef): Unit = {
+  override def visit(n: ImportDeclaration, arg: AnyRef): Unit = {
     super.visit(n, arg)
-    try {
-      val p = n.resolve()
-      sets = sets + (n.asString + " (From: " + p.describe() + ")")
-    } catch {
-      case e: Exception =>
-        // Gestione dell'eccezione
-        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
-    }
+    val imp = n.getNameAsString
+    sets = sets + ("Import: " + imp)
   }
-  
+
   def getSet: Set[String] = sets
 
 }
