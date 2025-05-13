@@ -1,6 +1,6 @@
 package lib
 
-import com.github.javaparser.JavaParser
+import com.github.javaparser.{JavaParser, ParserConfiguration}
 import io.reactivex.rxjava3.core.Observable
 
 import java.io.File
@@ -11,6 +11,7 @@ object ReactiveDependencyAnalyser:
   class ReactiveDependencyAnalyser:
 
     val jp = new JavaParser()
+    jp.getParserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14)
 
     private def getClassDependencies(classSrcFile: File): ClassDepsReport =
       if !classSrcFile.isFile || !classSrcFile.getName.endsWith(".java") then
