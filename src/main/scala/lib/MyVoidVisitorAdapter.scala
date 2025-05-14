@@ -31,7 +31,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
       } catch {
         case e: Exception =>
           // Gestione dell'eccezione
-          println(s"Errore durante la risoluzione del tipo per la variabile '${vd.getName.asString}' nel campo '${n.toString}': ${e.getMessage}")
+          var foundImp: Boolean = false
+          sets.foreach(e =>
+            if e.contains(vd.getType.asString) && e.contains("Import") then
+              sets = sets + (vd.getType.asString + " (From: " + e.substring(8) + ")")
+              foundImp = true
+          )
+          if !foundImp then
+            sets = sets + (vd.getType.asString + " (From: Could not Resolve)")
+            println(s"Errore durante la risoluzione del tipo per la variabile '${vd.getName.asString}' nel campo '${n.toString}': ${e.getMessage}")
       }
     })
   }
@@ -48,7 +56,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
       } catch {
         case e: Exception =>
           // Gestione dell'eccezione
-          println(s"Errore durante la risoluzione del tipo per il parametro '${p.getName.asString}' nel metodo '${n.getName.asString}': ${e.getMessage}")
+          var foundImp: Boolean = false
+          sets.foreach(e =>
+            if e.contains(p.getType.asString) && e.contains("Import") then
+              sets = sets + (p.getType.asString + " (From: " + e.substring(8) + ")")
+              foundImp = true
+          )
+          if !foundImp then
+            sets = sets + (p.getType.asString + " (From: Could not resolve)")
+            println(s"Errore durante la risoluzione del tipo per il parametro '${p.getName.asString}' nel metodo '${n.getName.asString}': ${e.getMessage}")
       }
     }
     try {
@@ -57,7 +73,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     } catch {
       case e: Exception =>
         // Gestione dell'eccezione
-        println(s"Errore durante la risoluzione del tipo di ritorno nel metodo '${n.getName.asString}': ${e.getMessage}")
+        var foundImp: Boolean = false
+        sets.foreach(e =>
+          if e.contains(n.getType.asString) && e.contains("Import") then
+            sets = sets + (n.getType.asString + " (From: " + e.substring(8) + ")")
+            foundImp = true
+        )
+        if !foundImp then
+          sets = sets + (n.getType.asString + " (From: Could not resolve)")
+          println(s"Errore durante la risoluzione del tipo di ritorno nel metodo '${n.getName.asString}': ${e.getMessage}")
     }
   }
 
@@ -73,7 +97,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     } catch {
       case e: Exception =>
         // Gestione dell'eccezione
-        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+        var foundImp: Boolean = false
+        sets.foreach(e =>
+          if e.contains(n.getType.asString) && e.contains("Import") then
+            sets = sets + (n.getType.asString + " (From: " + e.substring(8) + ")")
+            foundImp = true
+        )
+        if !foundImp then
+          sets = sets + (interfaceOrClassType.toString + " (From: Could not resolve)")
+          println(s"Errore durante la risoluzione del tipo ObjCreation: ${e.getMessage}")
     }
 
   }
@@ -90,7 +122,15 @@ class MyVoidVisitorAdapter extends VoidVisitorAdapter[AnyRef] {
     } catch {
       case e: Exception =>
         // Gestione dell'eccezione
-        println(s"Errore durante la risoluzione del tipo: ${e.getMessage}")
+        var foundImp: Boolean = false
+        sets.foreach(e =>
+          if e.contains(n.getType.asString) && e.contains("Import") then
+            sets = sets + (n.getType.asString + " (From: " + e.substring(8) + ")")
+            foundImp = true
+        )
+        if !foundImp then
+          sets = sets + (n.getType.asString + " (From: Could not resolve)")
+          println(s"Errore durante la risoluzione del tipo VarDec: ${e.getMessage}")
     }
   }
 
