@@ -1,10 +1,10 @@
 package lib
 
+import com.github.javaparser.ParserConfiguration.LanguageLevel.*
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.{ClassLoaderTypeSolver, CombinedTypeSolver, JavaParserTypeSolver, ReflectionTypeSolver}
-import com.github.javaparser.{JavaParser, ParserConfiguration, StaticJavaParser}
+import com.github.javaparser.{JavaParser, ParserConfiguration}
 import io.reactivex.rxjava3.core.Observable
-import com.github.javaparser.ParserConfiguration.LanguageLevel.*
 
 import java.io.File
 
@@ -19,8 +19,6 @@ object ReactiveDependencyAnalyser:
         throw new IllegalArgumentException("Il file non è un sorgente .java.")
       else
         val visitor = new MyVoidVisitorAdapter()
-        //StaticJavaParser.setConfiguration(parserConfig)
-        //StaticJavaParser.parse(classSrcFile).accept(visitor, null)
         js.parse(classSrcFile).getResult.get().accept(visitor, null)
         ClassDepsReport(classSrcFile, visitor.getSet)
 
@@ -31,16 +29,15 @@ object ReactiveDependencyAnalyser:
       else
 
         val reflectionSolver = new ReflectionTypeSolver()
-        val sourceSolver = new JavaParserTypeSolver(path.getAbsolutePath)
+        val sourceSolver = new JavaParserTypeSolver(path.getAbsolutePath + "/src/main/java/")
         val classLoaderSolver= new ClassLoaderTypeSolver(getClass.getClassLoader)
 
-        val combinedSolver = new CombinedTypeSolver(sourceSolver, reflectionSolver, classLoaderSolver)
+        val combinedSolver = new CombinedTypeSolver(reflectionSolver, sourceSolver, classLoaderSolver)
 
         val symbolSolver = new JavaSymbolSolver(combinedSolver)
         val parserConfig: ParserConfiguration = new ParserConfiguration().setSymbolResolver(symbolSolver)
-        parserConfig.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14)
 
-        js.getParserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_14)
+        js.getParserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
         js.getParserConfiguration.setSymbolResolver(symbolSolver)
 
         Observable.create(emitter => {
