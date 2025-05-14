@@ -29,7 +29,6 @@ import java.io.File
   val packageReport = analyser.getPackageDependencies(packageDir)
   packageReport.onComplete(x =>
     x.result().printInformation())
-  var i: Int = 0
 
   Thread.sleep(2000)
 
