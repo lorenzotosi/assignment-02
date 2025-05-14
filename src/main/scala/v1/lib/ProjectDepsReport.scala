@@ -1,8 +1,7 @@
-package lib
-
-import lib.DependencyAnalyserLib.Report
+package v1.lib
 
 import java.io.File
+import v1.lib.DependencyAnalyserLib.*
 
 class ProjectDepsReport(val projectName: File, val packages: List[PackageDepsReport]) extends Report:
 

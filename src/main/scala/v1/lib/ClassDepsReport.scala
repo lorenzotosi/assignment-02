@@ -1,6 +1,6 @@
-package lib
+package v1.lib
 
-import lib.DependencyAnalyserLib.{BasicReport, Report}
+import v1.lib.DependencyAnalyserLib.*
 
 import java.io.File
 

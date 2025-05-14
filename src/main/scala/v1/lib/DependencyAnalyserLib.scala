@@ -1,4 +1,4 @@
-package lib
+package v1.lib
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit

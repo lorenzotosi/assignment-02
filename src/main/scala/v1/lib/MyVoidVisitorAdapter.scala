@@ -1,4 +1,4 @@
-package lib
+package v1.lib
 
 import com.github.javaparser.ast.`type`.TypeParameter
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}

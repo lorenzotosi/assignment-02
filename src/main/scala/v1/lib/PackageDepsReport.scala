@@ -1,7 +1,7 @@
-package lib
+package v1.lib
 
-import lib.DependencyAnalyserLib.Report
 import java.io.File
+import v1.lib.DependencyAnalyserLib.*
 
 class PackageDepsReport(
                          val packageName: File,

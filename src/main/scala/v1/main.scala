@@ -1,5 +1,7 @@
+package v1
+
 import io.vertx.core.Vertx
-import lib.DependencyAnalyserLib.*
+import v1.lib.DependencyAnalyserLib.*
 
 import java.io.File
 
