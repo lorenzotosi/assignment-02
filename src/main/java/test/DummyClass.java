@@ -1,4 +1,4 @@
-package aleTests;
+package test;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package aleTests;
+package test;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
