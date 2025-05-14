@@ -1,7 +1,4 @@
-import lib.ClassDepsReport
-import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 
-import java.io.File
 
 @main
 def main(): Unit = {
