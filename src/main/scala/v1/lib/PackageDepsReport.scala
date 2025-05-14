@@ -9,12 +9,12 @@ class PackageDepsReport(
                          val classes: List[ClassDepsReport]
                        ) extends Report:
 
-  override def depsList: List[String] =
+  override def getDependencies: List[String] =
     classes.flatMap(classReport =>
-      classReport.map.flatMap { case (key, values) =>
+      classReport.dependencyMap.flatMap { case (key, values) =>
         values.map(value => s"${classReport.file.getName}: $key: $value")
       }
-    ) ++ subPackages.flatMap(_.depsList)
+    ) ++ subPackages.flatMap(_.getDependencies)
 
   override def printInformation(pref: String = ""): Unit =
     println(pref + s" Package name: ${packageName.getName}")

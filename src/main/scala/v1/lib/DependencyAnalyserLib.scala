@@ -14,7 +14,7 @@ object DependencyAnalyserLib:
     def printInformation(pref: String): Unit
 
   trait Report extends BasicReport:
-    def depsList: List[String]
+    def getDependencies: List[String]
 
   trait Analyzer extends AbstractVerticle:
     def getClassDependencies(classSrcFile: File): Future[ClassDepsReport]
