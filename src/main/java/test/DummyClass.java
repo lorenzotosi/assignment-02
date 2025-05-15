@@ -1,8 +1,8 @@
-package aleTests.subpackage;
+package test;
 
 import java.util.*;
 
-public class Ciao {
+public class DummyClass {
     private List<String> names;
 
     Thread t = new Thread();
