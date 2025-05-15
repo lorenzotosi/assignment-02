@@ -47,7 +47,7 @@ object Gui:
 
   def createGui(): Frame = new MainFrame {
     title = "Dependency Analyser"
-    
+
     val folderChooser = new FileChooser(new File("."))
     folderChooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
 
@@ -70,7 +70,7 @@ object Gui:
       lineWrap = true
       wordWrap = true
     }
-    
+
     val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
@@ -114,7 +114,7 @@ object Gui:
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
         outputInfo.append("Analyzing " + folderField.text + "...\n")
-        
+
         val projectTree = new ProjectTree()
         val rootTreeNode = new DefaultMutableTreeNode("Root")
         val treeModel: DefaultTreeModel = new DefaultTreeModel(rootTreeNode)
@@ -126,7 +126,7 @@ object Gui:
           .subscribe(
             p => Swing.onEDT {
               val obj: ClassDepsReport = p
-              val file = p.getFile
+              val file = obj.getFile
               val projectRoot = folderChooser.selectedFile
 
               val projectRootPath = projectRoot.toPath.toAbsolutePath
@@ -139,7 +139,6 @@ object Gui:
                   .getOrElse(projectTree.addNode(part, NodeType.Package, Some(parentNode)))
               }
 
-              // Add class node
               val className = file.getName
               outputInfo.append("  Found " + className + "\n")
               classCount += 1
@@ -147,7 +146,7 @@ object Gui:
 
               val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
 
-              def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode = {
+              def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode =
                 (0 until parent.getChildCount).collectFirst {
                   case i if parent.getChildAt(i).asInstanceOf[DefaultMutableTreeNode].getUserObject == name =>
                     parent.getChildAt(i).asInstanceOf[DefaultMutableTreeNode]
@@ -157,7 +156,7 @@ object Gui:
                   treeModel.nodesWereInserted(parent, Array(parent.getChildCount - 1))
                   newNode
                 }
-              }
+              
 
               val treeParent = packageParts.foldLeft(rootTreeNode) { (treeParent, part) =>
                 findOrCreateTreeNode(treeParent, part)
@@ -167,7 +166,7 @@ object Gui:
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
               var tmp = depsCount
-              obj.map.foreach(v => 
+              obj.map.foreach(v =>
                   val childNode = new DefaultMutableTreeNode(v)
                   classNode.add(childNode)
                   treeModel.nodesWereInserted(classNode, Array(classNode.getChildCount - 1))
