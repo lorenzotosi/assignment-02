@@ -36,8 +36,8 @@ object Gui:
             case TreeNodeInfo(_, NodeType.Class) =>
               setIcon(getLeafIcon)
             case TreeNodeInfo(_, NodeType.Interface) =>
-              setIcon(getLeafIcon) // Or another icon
-            case _ => // Default handling
+              setIcon(getLeafIcon)
+            case _ =>
           }
         case _ =>
       }
@@ -84,21 +84,18 @@ object Gui:
       preferredSize = new Dimension(600, 200)
     }
 
-
-    // Layout
     contents = new BorderPanel {
       layout(new BoxPanel(Orientation.Vertical) {
         contents += new FlowPanel(folderLabel, folderField, selectFolderButton)
         contents += new FlowPanel(warningLabel)
         contents += new FlowPanel(startButton)
-        contents += new FlowPanel(outputContainer) //outputContainer
+        contents += new FlowPanel(outputContainer)
         contents += new FlowPanel(classCountLabel, dependencyCountLabel)
         contents += graphPanel
         border = Swing.EmptyBorder(10, 10, 10, 10)
       }) = BorderPanel.Position.Center
     }
 
-    // Reazioni GUI
     listenTo(selectFolderButton, startButton)
     reactions += {
       case ButtonClicked(`selectFolderButton`) =>
@@ -117,8 +114,7 @@ object Gui:
         val scheduler = io.reactivex.rxjava3.schedulers.Schedulers.io()
 
         outputInfo.append("Analyzing " + folderField.text + "...\n")
-
-        // Initialize ProjectTree and JTree
+        
         val projectTree = new ProjectTree()
         val rootTreeNode = new DefaultMutableTreeNode("Root")
         val treeModel: DefaultTreeModel = new DefaultTreeModel(rootTreeNode)
@@ -133,8 +129,6 @@ object Gui:
               val file = p.getFile
               val projectRoot = folderChooser.selectedFile
 
-
-              // Calculate package structure from file path
               val projectRootPath = projectRoot.toPath.toAbsolutePath
               val fileParentPath = file.getParentFile.toPath.toAbsolutePath
               val relativePath = projectRootPath.relativize(fileParentPath)
@@ -152,18 +146,7 @@ object Gui:
               classCountLabel.text = "Classes/Interfaces: " + classCount
 
               val node = projectTree.addNode(className, NodeType.Class, Some(currentParentNode))
-//              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
-//                v.foreach(el => projectTree.addNode(el, NodeType.Interface, Some(node)))
-//              })
-//              obj.map.foreach((k, v) => if k.equals("Class or Interface") then {
-//                v.foreach(el => {
-//                  projectTree.addNode(el, NodeType.Interface, Some(node))
-//                  classCount += 1
-//                  classCountLabel.text = "Classes/Interfaces: " + classCount
-//                })
-//              })
 
-              // Update JTree
               def findOrCreateTreeNode(parent: DefaultMutableTreeNode, name: String): DefaultMutableTreeNode = {
                 (0 until parent.getChildCount).collectFirst {
                   case i if parent.getChildAt(i).asInstanceOf[DefaultMutableTreeNode].getUserObject == name =>
@@ -183,7 +166,6 @@ object Gui:
               treeParent.add(classNode)
               treeModel.nodesWereInserted(treeParent, Array(treeParent.getChildCount - 1))
 
-              // Aggiungi un nodo figlio chiamato "ciao" al nodo classNode
               var tmp = depsCount
               obj.map.foreach(v => 
                   val childNode = new DefaultMutableTreeNode(v)
