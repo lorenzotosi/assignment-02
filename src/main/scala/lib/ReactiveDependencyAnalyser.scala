@@ -40,14 +40,14 @@ object ReactiveDependencyAnalyser:
         js.getParserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
         js.getParserConfiguration.setSymbolResolver(symbolSolver)
 
-        Observable.create(emitter => {
+        Observable.create(emitter =>
           def searchFiles(dir: File): Unit =
             val files = dir.listFiles
             if files != null then
               files.foreach(file =>
-                if file.isDirectory then {
+                if file.isDirectory then
                   searchFiles(file)
-                } else if file.getName.endsWith(".java") then
+                else if file.getName.endsWith(".java") then
                   val x: ClassDepsReport = getClassDependencies(file, parserConfig)
                   emitter.onNext(x)
               )
@@ -55,8 +55,7 @@ object ReactiveDependencyAnalyser:
             searchFiles(path)
             emitter.onComplete()
           catch
-            case ex: Exception => {
+            case ex: Exception =>
               println(ex.getMessage)
               emitter.onError(ex)
-            }
-          })
+          )

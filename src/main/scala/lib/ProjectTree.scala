@@ -1,8 +1,6 @@
 package lib
 
 object ProjectTree:
-  
-  // enum per i tipi di nodo
   enum NodeType:
     case Class, Interface, Package, Module
   
@@ -29,11 +27,4 @@ object ProjectTree:
         case Some(p) => p.addChild(newNode)
         case None => root.addChild(newNode)
       newNode
-      
-    def removeNode(node: Node): Unit =
-      node.getParent match
-        case Some(p) => p.removeChild(node)
-        case None => root.removeChild(node)
-      
-    def getRoot: Node = root
     

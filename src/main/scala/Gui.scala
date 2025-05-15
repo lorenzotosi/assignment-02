@@ -47,8 +47,7 @@ object Gui:
 
   def createGui(): Frame = new MainFrame {
     title = "Dependency Analyser"
-
-    // Selettore per cartella root del progetto
+    
     val folderChooser = new FileChooser(new File("."))
     folderChooser.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
 
@@ -71,15 +70,10 @@ object Gui:
       lineWrap = true
       wordWrap = true
     }
-
-    // Placeholder grafico per il grafo delle dipendenze
-    //var treeModel: DefaultTreeModel = uninitialized
-    //var jTree: JTree = uninitialized
+    
     val graphPanel: ScrollPane = new ScrollPane() {
       preferredSize = new Dimension(600, 400)
     }
-//    graphPanel.horizontalScrollBar.enabled = false
-//    graphPanel.verticalScrollBar.enabled = false
 
     val outputInfo: TextArea = new TextArea() {
       editable = false
@@ -109,11 +103,10 @@ object Gui:
     reactions += {
       case ButtonClicked(`selectFolderButton`) =>
         val result = folderChooser.showOpenDialog(null)
-        if (result == FileChooser.Result.Approve) {
+        if (result == FileChooser.Result.Approve)
           folderField.text = folderChooser.selectedFile.getAbsolutePath
           startButton.enabled = true
           warningLabel.text = ""
-        }
 
       case ButtonClicked(`startButton`) =>
         statusBox.text = ""
@@ -147,11 +140,9 @@ object Gui:
               val relativePath = projectRootPath.relativize(fileParentPath)
               val packageParts = relativePath.iterator.asScala.toList.map(_.toString)
 
-              // Update ProjectTree
-              val currentParentNode = packageParts.foldLeft(projectTree.getRoot) { (currentParentNode, part) =>
-                currentParentNode.getChildren.find(n => n.getName == part && n.getNodeType == NodeType.Package) match 
-                  case Some(child) => child
-                  case None => projectTree.addNode(part, NodeType.Package, Some(currentParentNode))
+              val currentParentNode = packageParts.foldLeft(projectTree.root) { (parentNode, part) =>
+                parentNode.getChildren.find(n => n.getName == part && n.getNodeType == NodeType.Package)
+                  .getOrElse(projectTree.addNode(part, NodeType.Package, Some(parentNode)))
               }
 
               // Add class node
@@ -194,13 +185,13 @@ object Gui:
 
               // Aggiungi un nodo figlio chiamato "ciao" al nodo classNode
               var tmp = depsCount
-              obj.map.foreach(v => {
+              obj.map.foreach(v => 
                   val childNode = new DefaultMutableTreeNode(v)
                   classNode.add(childNode)
                   treeModel.nodesWereInserted(classNode, Array(classNode.getChildCount - 1))
                   depsCount += 1
                   dependencyCountLabel.text = "Dependencies: " + depsCount
-                })
+                )
               outputInfo.append("    With " + (depsCount - tmp) + " Dependencies\n")
               tmp = depsCount
 
