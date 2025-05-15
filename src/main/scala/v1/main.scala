@@ -21,7 +21,7 @@ import java.io.File
     x.result().printInformation()
   )
 
-  Thread.sleep(2000)
+  //Thread.sleep(2000)
 
   val packageDir = new File("src/main/java/test")
   println("Analizzando: " + packageDir.getAbsolutePath)
@@ -30,7 +30,7 @@ import java.io.File
   packageReport.onComplete(x =>
     x.result().printInformation())
 
-  Thread.sleep(2000)
+  //Thread.sleep(2000)
 
   val projectDir = new File("src")
   println("Analizzando: " + projectDir.getAbsolutePath)
