@@ -1,4 +1,4 @@
-package lib
+package v2.lib
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{ClassOrInterfaceDeclaration, FieldDeclaration, MethodDeclaration, VariableDeclarator}

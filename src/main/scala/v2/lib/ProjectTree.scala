@@ -1,4 +1,4 @@
-package lib
+package v2.lib
 
 object ProjectTree:
   enum NodeType:

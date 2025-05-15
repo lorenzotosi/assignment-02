@@ -1,4 +1,4 @@
-package lib
+package v2.lib
 
 import com.github.javaparser.ParserConfiguration.LanguageLevel.*
 import com.github.javaparser.symbolsolver.JavaSymbolSolver

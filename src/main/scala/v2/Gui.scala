@@ -1,6 +1,8 @@
-import lib.ClassDepsReport
-import lib.ProjectTree.*
-import lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
+package v2
+
+import v2.lib.ClassDepsReport
+import v2.lib.ProjectTree.*
+import v2.lib.ReactiveDependencyAnalyser.ReactiveDependencyAnalyser
 
 import java.io.File
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}

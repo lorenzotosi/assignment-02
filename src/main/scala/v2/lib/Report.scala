@@ -1,4 +1,4 @@
-package lib
+package v2.lib
 
 trait BasicReport:
 	def printInformation(pref: String): Unit
