@@ -149,10 +149,9 @@ object Gui:
 
               // Update ProjectTree
               val currentParentNode = packageParts.foldLeft(projectTree.getRoot) { (currentParentNode, part) =>
-                currentParentNode.getChildren.find(n => n.getName == part && n.getNodeType == NodeType.Package) match {
+                currentParentNode.getChildren.find(n => n.getName == part && n.getNodeType == NodeType.Package) match 
                   case Some(child) => child
                   case None => projectTree.addNode(part, NodeType.Package, Some(currentParentNode))
-                }
               }
 
               // Add class node
