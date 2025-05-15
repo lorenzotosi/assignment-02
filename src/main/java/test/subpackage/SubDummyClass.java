@@ -1,4 +1,4 @@
-package aleTests.subpackage.subsubpack;
+package test.subpackage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SubDummyClass2 {
+public class SubDummyClass {
     private final List<String> imports;
     private final Map<String, Integer> classData;
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import\\s+([\\w\\.]+)\\s*;");
 
-    public SubDummyClass2() {
+    public SubDummyClass() {
         this.imports = new ArrayList<>();
         this.classData = new HashMap<>();
     }
