@@ -29,7 +29,19 @@ object ReactiveDependencyAnalyser:
       else
 
         val reflectionSolver = new ReflectionTypeSolver()
-        val sourceSolver = new JavaParserTypeSolver(path.getAbsolutePath + "/src/main/java/")
+
+        val adjustedPath =
+          if path.isDirectory && new File(path, "src/main/java").exists() then
+            new File(path, "src/main/java")
+          else if path.isDirectory
+            && path.getAbsolutePath.contains("src")
+            && new File(path, "/main/java").exists() then
+            new File(path, "/main/java")
+          else
+            path
+            //throw new IllegalArgumentException("Il percorso specificato non contiene la struttura /src/main/java.")
+
+        val sourceSolver = new JavaParserTypeSolver(adjustedPath)
         val classLoaderSolver= new ClassLoaderTypeSolver(getClass.getClassLoader)
 
         val combinedSolver = new CombinedTypeSolver(reflectionSolver, sourceSolver, classLoaderSolver)
