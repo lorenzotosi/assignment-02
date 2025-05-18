@@ -17,7 +17,7 @@ import java.io.File
   val futureReport = analyser.getClassDependencies(file)
 
   val report = futureReport.onComplete(x =>
-    println("Dipendenze trovate:")
+    println("\nDipendenze Classe trovate:")
     x.result().printInformation()
   )
 
@@ -28,6 +28,7 @@ import java.io.File
   println("TEST 2:")
   val packageReport = analyser.getPackageDependencies(packageDir)
   packageReport.onComplete(x =>
+    println("\nDipendenze Package trovate:")
     x.result().printInformation())
 
   //Thread.sleep(2000)
@@ -38,6 +39,7 @@ import java.io.File
   val projectReport = analyser.getProjectDependencies(projectDir)
   projectReport.onComplete(
     x =>
+      println("\nDipendenze Progetto trovate:")
       x.result().printInformation()
       v.close()
   )
